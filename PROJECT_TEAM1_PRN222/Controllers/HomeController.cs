@@ -4,6 +4,7 @@ using PROJECT_TEAM1_PRN222.Models;
 
 namespace PROJECT_TEAM1_PRN222.Controllers
 {
+    // test git
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
