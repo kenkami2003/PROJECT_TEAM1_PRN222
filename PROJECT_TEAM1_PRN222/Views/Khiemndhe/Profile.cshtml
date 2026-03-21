@@ -1,0 +1,84 @@
+@using BoardingHouseManagement.Models
+@model User
+@{
+    ViewData["Title"] = "Hồ sơ của tôi";
+    var guardian = ViewBag.Guardian as Guardian;
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+            <h1 class="mb-3">Quản lý Hồ Sơ</h1>
+            <p>Cập nhật thông tin cá nhân và người bảo hộ của bạn.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-8 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="bg-light rounded p-5">
+                    @if(!string.IsNullOrEmpty(ViewBag.Success))
+                    {
+                        <div class="alert alert-success">@ViewBag.Success</div>
+                    }
+
+                    <form action="~/Profile" method="post">
+                        <h4 class="mb-4">Thông tin cá nhân</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="FullName" id="FullName" value="@Model.FullName" placeholder="Họ và tên" required>
+                                    <label for="FullName">Họ và tên</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" name="Email" id="Email" value="@Model.Email" placeholder="Email" required>
+                                    <label for="Email">Địa chỉ Email</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control" name="Phone" id="Phone" value="@Model.Phone" placeholder="Số điện thoại">
+                                    <label for="Phone">Số điện thoại</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="IdentityNumber" id="IdentityNumber" value="@Model.IdentityNumber" placeholder="CCCD/CMND">
+                                    <label for="IdentityNumber">Căn cước công dân (CCCD)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="mb-4" />
+
+                        <h4 class="mb-4">Thông tin Người bảo hộ</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="guardianName" id="guardianName" value="@(guardian != null ? guardian.Name : "")" placeholder="Tên người bảo hộ">
+                                    <label for="guardianName">Họ tên người bảo hộ</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control" name="guardianPhone" id="guardianPhone" value="@(guardian != null ? guardian.Phone : "")" placeholder="SĐT người bảo hộ">
+                                    <label for="guardianPhone">Số điện thoại liện hệ</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="guardianRelationship" id="guardianRelationship" value="@(guardian != null ? guardian.Relationship : "")" placeholder="Mối quan hệ">
+                                    <label for="guardianRelationship">Mối quan hệ (VD: Bố, Mẹ)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4 text-center">
+                            <button class="btn btn-primary w-50 py-3" type="submit">Lưu Hồ Sơ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
