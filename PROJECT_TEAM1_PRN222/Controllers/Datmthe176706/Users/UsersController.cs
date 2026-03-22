@@ -2,7 +2,7 @@
 
 namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 {
-    [Area("Datmthe176706")]
+ 
     public class UsersController : Controller
     {
         public IActionResult Index()

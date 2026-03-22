@@ -1,0 +1,40 @@
+﻿@model List<BoardingHouseManagement.Models.AuditLog>
+
+@{
+    Layout = "~/Views/Datmthe176706/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Audit Logs</h5>
+        <a href="/AuditLogs/CreateTest" class="btn btn-primary btn-sm">
+            + Add Log
+        </a>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.UserId.ToString().Substring(0, 8)...</td>
+                        <td>
+                            <span class="badge bg-secondary">@item.Action</span>
+                        </td>
+                        <td>@item.Details</td>
+                        <td>@item.Timestamp.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
