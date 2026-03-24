@@ -28,6 +28,8 @@ app.MapControllerRoute(
     name: "admim",
     pattern: "Admin/{controller=Portal}/{action=Index}/{id?}");
 
+app.MapControllers();
+
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");

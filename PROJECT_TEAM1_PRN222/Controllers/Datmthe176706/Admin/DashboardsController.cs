@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin;
-
-public class DashboardsController : Controller
+namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
 {
-    [Area("Datmthe176706")]
-    public IActionResult Index()
+    [Route("Datmthe176706/Admin/[controller]")]
+    public class DashboardsController : Controller
     {
-        return View("~/Views/Datmthe176706/Admin/Index.cshtml");
+        [HttpGet("")]
+        [HttpGet("Index")]
+        public IActionResult Index()
+        {
+            return View("~/Views/Datmthe176706/Admin/Index.cshtml");
+        }
     }
 }
