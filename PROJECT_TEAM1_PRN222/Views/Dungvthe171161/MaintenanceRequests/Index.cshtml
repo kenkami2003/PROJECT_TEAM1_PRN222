@@ -1,0 +1,95 @@
+﻿@model List<BoardingHouseManagement.Models.MaintenanceRequest>
+@using BoardingHouseManagement.Models
+
+@{
+    Layout = "~/Views/Datmthe176706/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bx bx-wrench me-2"></i>
+            Maintenance Requests (@Model.Count)
+        </h5>
+
+        <a href="/MaintenanceRequests/Create" class="btn btn-primary btn-sm">
+            <i class="bx bx-plus"></i> New Request
+        </a>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Room</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="bx bx-inbox fs-2"></i>
+                            <div>No requests found</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- Room -->
+                            <td>
+                                <span class="badge bg-info">
+                                    Room @item.Room?.RoomNumber
+                                </span>
+                            </td>
+
+                            <!-- Title -->
+                            <td class="fw-semibold">
+                                @item.Title
+                            </td>
+
+                            <!-- Status -->
+                            <td>
+                                @if (item.Status == RequestStatus.Open)
+                                {
+                                    <span class="badge bg-secondary">Open</span>
+                                }
+                                else if (item.Status == RequestStatus.Processing)
+                                {
+                                    <span class="badge bg-warning text-dark">Processing</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Fixed</span>
+                                }
+                            </td>
+
+                            <!-- Time -->
+                            <td>
+                                <span class="text-muted">
+                                    @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            </td>
+
+                            <!-- Action -->
+                            <td>
+                                <a href="/MaintenanceRequests/Edit/@item.Id"
+                                   class="btn btn-sm btn-outline-warning">
+                                    <i class="bx bx-edit"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

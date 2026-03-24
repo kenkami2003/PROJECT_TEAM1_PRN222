@@ -1,0 +1,46 @@
+﻿@model BoardingHouseManagement.Models.MaintenanceRequest
+
+@{
+    Layout = "~/Views/Datmthe176706/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bx bx-edit me-2"></i> Update Request
+        </h5>
+    </div>
+
+    <div class="card-body">
+        <form method="post">
+
+            <!-- Title -->
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" />
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="Open">Open</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Fixed">Fixed</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bx bx-save"></i> Update
+                </button>
+
+                <a href="/MaintenanceRequests" class="btn btn-secondary">
+                    Back
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
