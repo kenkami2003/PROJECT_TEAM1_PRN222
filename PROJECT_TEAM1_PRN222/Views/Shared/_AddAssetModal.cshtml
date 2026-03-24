@@ -1,0 +1,54 @@
+﻿<div class="modal fade" id="addAssetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="RoomAsset" asp-action="Create" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Thêm tài sản mới vào phòng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="RoomId" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại tài sản</label>
+                        <select name="AssetCategoryId" class="form-select" required>
+                            <option value="">-- Chọn loại --</option>
+                            @foreach (var cat in ViewBag.AssetCategories)
+                            {
+                                <option value="@cat.Id">@cat.Name (Đền bù: @cat.DefaultCompensationPrice.ToString("N0")đ)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Số lượng</label>
+                            <input type="number" name="Quantity" class="form-control" value="1" min="1" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tình trạng</label>
+                            <input type="text" name="Condition" class="form-control" placeholder="Mới 100%, cũ..." />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Hình ảnh thực tế</label>
+                        <input type="file" name="AssetFile" class="form-control" accept="image/*" capture="camera" id="imageInput" />
+                        <div id="previewContainer" class="mt-2 d-none text-center">
+                            <img id="imagePreview" src="#" class="img-thumbnail" style="max-height: 150px;" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ghi chú chi tiết</label>
+                        <textarea name="Note" class="form-control" rows="2" placeholder="Hiệu máy, màu sắc, vị trí đặt..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu tài sản</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

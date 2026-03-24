@@ -1,5 +1,61 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<BoardingHouseManagement.Models.Room>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Danh sách phòng";
 }
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Quản lý danh sách phòng</h5>
+        <small class="text-muted">Tổng số: @Model.Count() phòng</small>
+    </div>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Số phòng</th>
+                    <th>Thuộc dãy</th>
+                    <th>Giá thuê</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.RoomNumber</strong></td>
+                        <td>@item.Building?.Name</td>
+                        <td>@item.BasePrice.ToString("N0") đ</td>
+                        <td>
+                            @if (item.Status == BoardingHouseManagement.Models.RoomStatus.Available)
+                            {
+                                <span class="badge bg-label-success">Trống</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-label-danger">Đã thuê</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="bx bx-show-alt me-1"></i> Chi tiết & Đồ đạc
+                                    </a>
+                                    <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="bx bx-edit-alt me-1"></i> Sửa & Chụp ảnh đồ
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
