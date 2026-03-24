@@ -18,9 +18,9 @@ namespace BoardingHouseManagement.Models
         public int Quantity { get; set; }
 
         [MaxLength(100)]
-        public string Condition { get; set; }
+        public string? Condition { get; set; }
 
         public Room Room { get; set; }
-        public AssetCategory AssetCategory { get; set; }
+        public AssetCategory? AssetCategory { get; set; }
     }
 }

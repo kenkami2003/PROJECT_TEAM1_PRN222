@@ -16,7 +16,7 @@ namespace BoardingHouseManagement.Models
         [Required, MaxLength(100)]
         public string Name { get; set; }
 
-        public Property Property { get; set; }
-        public ICollection<Room> Rooms { get; set; }
+        public Property? Property { get; set; }
+        public ICollection<Room>? Rooms { get; set; }
     }
 }

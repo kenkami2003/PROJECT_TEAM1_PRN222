@@ -1,4 +1,4 @@
-
+﻿
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardingHouseManagement.Models
@@ -36,6 +36,19 @@ namespace BoardingHouseManagement.Models
             modelBuilder.Entity<Room>().HasIndex(x => new { x.BuildingId, x.RoomNumber }).IsUnique();
             modelBuilder.Entity<Contract>().HasIndex(x => x.ContractCode).IsUnique();
             modelBuilder.Entity<Invoice>().HasIndex(x => x.InvoiceCode).IsUnique();
+
+            modelBuilder.Entity<Building>()
+                .HasOne(b => b.Property)         // Một Building có một Property
+                .WithMany(p => p.Buildings)      // Một Property có nhiều Buildings
+                .HasForeignKey(b => b.PropertyId) // Khóa ngoại là PropertyId
+                .OnDelete(DeleteBehavior.Cascade); // KÍCH HOẠT CASCADE DELETE
+
+            // Cấu hình mối quan hệ giữa Building và Room (Nếu có)
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.Building)
+                .WithMany(b => b.Rooms)
+                .HasForeignKey(r => r.BuildingId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa Building sẽ xóa luôn Room
         }
     }
 }

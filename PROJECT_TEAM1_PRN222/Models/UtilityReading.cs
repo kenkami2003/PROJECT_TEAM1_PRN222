@@ -19,6 +19,7 @@ namespace BoardingHouseManagement.Models
 
         public double OldElectricity { get; set; }
         public double NewElectricity { get; set; }
+ 
 
         public double OldWater { get; set; }
         public double NewWater { get; set; }
@@ -27,6 +28,6 @@ namespace BoardingHouseManagement.Models
 
         public Guid RecordedBy { get; set; }
 
-        public Room Room { get; set; }
+        public Room? Room { get; set; }
     }
 }
