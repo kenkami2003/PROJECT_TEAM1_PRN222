@@ -12,21 +12,20 @@
     </div>
 
     <div class="card-body">
-        <form method="post">
+        <form asp-action="Create" method="post">
 
-            <!-- Title -->
+            <div asp-validation-summary="All" class="text-danger"></div>
+
             <div class="mb-3">
                 <label class="form-label">Title</label>
-                <input asp-for="Title" class="form-control" placeholder="Enter title..." />
+                <input asp-for="Title" class="form-control" />
             </div>
 
-            <!-- Description -->
             <div class="mb-3">
                 <label class="form-label">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <textarea asp-for="Description" class="form-control"></textarea>
             </div>
 
-            <!-- Room -->
             <div class="mb-3">
                 <label class="form-label">Room</label>
                 <select asp-for="RoomId" class="form-select">
@@ -38,23 +37,7 @@
                 </select>
             </div>
 
-            <!-- Tenant -->
-            <div class="mb-3">
-                <label class="form-label">TenantId</label>
-                <input asp-for="TenantId" class="form-control" placeholder="Enter TenantId..." />
-            </div>
-
-            <!-- Buttons -->
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-success">
-                    <i class="bx bx-save"></i> Create
-                </button>
-
-                <a href="/MaintenanceRequests" class="btn btn-secondary">
-                    Cancel
-                </a>
-            </div>
-
+            <button class="btn btn-success">Create</button>
         </form>
     </div>
 </div>

@@ -3,9 +3,12 @@
 
 @{
     Layout = "~/Views/Datmthe176706/Admin/_LayoutAdmin.cshtml";
+    var currentStatus = Context.Request.Query["status"];
 }
 
 <div class="card">
+
+    <!-- HEADER -->
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="bx bx-wrench me-2"></i>
@@ -17,6 +20,32 @@
         </a>
     </div>
 
+    <!-- FILTER (ĐÚNG CHỖ) -->
+    <div class="card-body pb-0">
+        <div class="mb-3">
+            <a href="/MaintenanceRequests"
+               class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-primary" : "btn-outline-secondary")">
+                All
+            </a>
+
+            <a href="/MaintenanceRequests?status=Open"
+               class="btn btn-sm @(currentStatus == "Open" ? "btn-primary" : "btn-outline-secondary")">
+                Open
+            </a>
+
+            <a href="/MaintenanceRequests?status=Processing"
+               class="btn btn-sm @(currentStatus == "Processing" ? "btn-warning" : "btn-outline-warning")">
+                Processing
+            </a>
+
+            <a href="/MaintenanceRequests?status=Fixed"
+               class="btn btn-sm @(currentStatus == "Fixed" ? "btn-success" : "btn-outline-success")">
+                Fixed
+            </a>
+        </div>
+    </div>
+
+    <!-- TABLE -->
     <div class="table-responsive text-nowrap">
         <table class="table table-hover align-middle">
             <thead class="table-light">
@@ -44,19 +73,14 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <!-- Room -->
                             <td>
                                 <span class="badge bg-info">
                                     Room @item.Room?.RoomNumber
                                 </span>
                             </td>
 
-                            <!-- Title -->
-                            <td class="fw-semibold">
-                                @item.Title
-                            </td>
+                            <td class="fw-semibold">@item.Title</td>
 
-                            <!-- Status -->
                             <td>
                                 @if (item.Status == RequestStatus.Open)
                                 {
@@ -72,14 +96,12 @@
                                 }
                             </td>
 
-                            <!-- Time -->
                             <td>
                                 <span class="text-muted">
                                     @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                                 </span>
                             </td>
 
-                            <!-- Action -->
                             <td>
                                 <a href="/MaintenanceRequests/Edit/@item.Id"
                                    class="btn btn-sm btn-outline-warning">
@@ -92,4 +114,5 @@
             </tbody>
         </table>
     </div>
+
 </div>

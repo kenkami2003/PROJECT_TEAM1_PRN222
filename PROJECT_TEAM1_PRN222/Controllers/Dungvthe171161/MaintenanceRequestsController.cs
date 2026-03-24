@@ -14,12 +14,19 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
         }
 
         // LIST
-        public IActionResult Index()
+        public IActionResult Index(string status)
         {
-            var list = _context.MaintenanceRequests
-                .Include(x => x.Room)
-                .OrderByDescending(x => x.CreatedAt)
-                .ToList();
+            var query = _context.MaintenanceRequests
+         .Include(x => x.Room)
+         .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                var st = Enum.Parse<RequestStatus>(status);
+                query = query.Where(x => x.Status == st);
+            }
+
+            var list = query.OrderByDescending(x => x.CreatedAt).ToList();
 
             return View("~/Views/Dungvthe171161/MaintenanceRequests/Index.cshtml", list);
         }
@@ -27,22 +34,75 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
         // CREATE
         public IActionResult Create()
         {
+            // 🔥 1. PROPERTY
+            if (!_context.Properties.Any())
+            {
+                _context.Properties.Add(new Property
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Test Property",
+                    Address = "Hà Nội" // ✅ FIX
+                });
+
+                _context.SaveChanges();
+            }
+
+            var property = _context.Properties.First();
+
+            // 🔥 2. BUILDING
+            if (!_context.Buildings.Any())
+            {
+                _context.Buildings.Add(new Building
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Test Building",
+                    PropertyId = property.Id // ✅ FIX
+                });
+
+                _context.SaveChanges();
+            }
+
+            var building = _context.Buildings.First();
+
+            // 🔥 3. ROOM
+            if (!_context.Rooms.Any())
+            {
+                _context.Rooms.Add(new Room
+                {
+                    Id = Guid.NewGuid(),
+                    RoomNumber = "Test101",
+                    BuildingId = building.Id, // ✅ FIX
+                    Status = RoomStatus.Available,
+                    Description = "Test room",
+                    BasePrice = 1000000,
+                    DepositAmount = 500000
+                });
+
+                _context.SaveChanges();
+            }
+
             ViewBag.Rooms = _context.Rooms.ToList();
+
             return View("~/Views/Dungvthe171161/MaintenanceRequests/Create.cshtml");
         }
 
         [HttpPost]
         public IActionResult Create(MaintenanceRequest req)
         {
+            ModelState.Remove("ImageUrl");
+            ModelState.Remove("Room");
+
             if (ModelState.IsValid)
             {
                 req.Id = Guid.NewGuid();
                 req.CreatedAt = DateTime.Now;
                 req.Status = RequestStatus.Open;
+                req.TenantId = Guid.NewGuid();
+
+                req.ImageUrl = "no-image.png";
 
                 _context.MaintenanceRequests.Add(req);
 
-                // 🔥 Audit Log
                 _context.AuditLogs.Add(new AuditLog
                 {
                     UserId = req.TenantId,
@@ -57,7 +117,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
             }
 
             ViewBag.Rooms = _context.Rooms.ToList();
-            return View(req);
+            return View("~/Views/Dungvthe171161/MaintenanceRequests/Create.cshtml", req);
         }
 
         // EDIT (staff xử lý)
