@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PROJECT_TEAM1_PRN222.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260318064427_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260322050928_AddNavigationToContract")]
+    partial class AddNavigationToContract
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -134,6 +134,12 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("ContractProofImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -155,6 +161,8 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .IsUnique();
 
                     b.HasIndex("RoomId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Contracts");
                 });
@@ -350,6 +358,9 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime2");
 
@@ -358,6 +369,12 @@ namespace PROJECT_TEAM1_PRN222.Migrations
 
                     b.Property<bool>("IsConvertedToContract")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentProofImage")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ReservationFee")
                         .HasColumnType("decimal(18,2)");
@@ -368,7 +385,14 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("GuestId");
+
+                    b.HasIndex("RoomId");
 
                     b.ToTable("Reservations");
                 });
@@ -624,7 +648,15 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BoardingHouseManagement.Models.User", "Tenan")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Room");
+
+                    b.Navigation("Tenan");
                 });
 
             modelBuilder.Entity("BoardingHouseManagement.Models.Invoice", b =>
@@ -658,6 +690,25 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .IsRequired();
 
                     b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("BoardingHouseManagement.Models.Reservation", b =>
+                {
+                    b.HasOne("BoardingHouseManagement.Models.User", "Guest")
+                        .WithMany()
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BoardingHouseManagement.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("BoardingHouseManagement.Models.Room", b =>

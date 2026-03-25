@@ -4,6 +4,7 @@ using BoardingHouseManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PROJECT_TEAM1_PRN222.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324085221_AddTemporaryGuestTable")]
+    partial class AddTemporaryGuestTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -520,9 +523,11 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("IdentityCardBack")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdentityCardFront")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdentityNumber")
@@ -542,6 +547,7 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PaymentProof")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")

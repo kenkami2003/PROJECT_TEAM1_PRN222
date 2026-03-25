@@ -4,6 +4,7 @@ using BoardingHouseManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PROJECT_TEAM1_PRN222.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322043958_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,8 +161,6 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .IsUnique();
 
                     b.HasIndex("RoomId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Contracts");
                 });
@@ -519,44 +520,20 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("IdentityCardBack")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IdentityCardFront")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("IdentityNumber")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsCheckedOut")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("PaymentProof")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
 
                     b.ToTable("TemporaryGuests");
                 });
@@ -669,15 +646,7 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BoardingHouseManagement.Models.User", "Tenan")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Room");
-
-                    b.Navigation("Tenan");
                 });
 
             modelBuilder.Entity("BoardingHouseManagement.Models.Invoice", b =>
@@ -758,17 +727,6 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .IsRequired();
 
                     b.Navigation("AssetCategory");
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("BoardingHouseManagement.Models.TemporaryGuest", b =>
-                {
-                    b.HasOne("BoardingHouseManagement.Models.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Room");
                 });
