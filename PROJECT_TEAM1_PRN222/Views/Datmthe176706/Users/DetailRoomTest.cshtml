@@ -1,0 +1,99 @@
+﻿@model BoardingHouseManagement.Models.Room
+
+@{
+    ViewData["Title"] = "Chi tiết phòng " + Model.RoomNumber;
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="position-relative overflow-hidden">
+                    <img class="img-fluid w-100 rounded" src="~/Users/img/property-1.jpg" alt="Room Image">
+                    @using BoardingHouseManagement.Models @* Đảm bảo đã có namespace chứa Enum *@
+
+                    <div class="bg-primary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">
+                        @if (Model.Status == RoomStatus.Available)
+                        {
+                            <span>Còn trống</span>
+                        }
+                        else if (Model.Status == RoomStatus.Reserved)
+                        {
+
+                            <span>Đã giữ chỗ</span>
+                        }
+                        else
+                        {
+
+                            <span>Đã thuê</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                <h1 class="mb-4">Phòng @Model.RoomNumber</h1>
+                <p class="mb-4">@Model.Description</p>
+
+                <div class="row gy-2 gx-4 mb-4">
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-money-bill-alt text-primary me-2"></i>Giá thuê: <strong>@Model.BasePrice.ToString("N0") VNĐ</strong></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-shield-alt text-primary me-2"></i>Tiền cọc: @Model.DepositAmount.ToString("N0") VNĐ</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-building text-primary me-2"></i>Tòa nhà: @Model.Building?.Name</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-check text-primary me-2"></i>Trạng thái: @Model.Status</p>
+                    </div>
+                </div>
+
+
+
+                <div class="border-top pt-4">
+                    <h5 class="mb-3">Thao tác nghiệp vụ</h5>
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+
+                        @* 1. Nút Giữ chỗ: Chỉ hiện khi phòng trống hoàn toàn *@
+                        @if (Model.Status.ToString() == "Available")
+                        {
+                            <a asp-action="Reservation" asp-area="Datmthe176706" asp-controller="Users" asp-route-roomId="@Model.Id"
+                               class="btn btn-warning py-3 px-4 text-dark fw-bold">
+                                <i class="fa fa-calendar-check me-2"></i>Giữ chỗ trước
+                            </a>
+                        }
+
+                        @* 2. Nút Lập hợp đồng: 
+           - KHÔNG HIỆN nếu phòng đã có người ở (Occupied)
+           - Hiện nếu phòng trống (Available) hoặc đang giữ chỗ (Reserved)
+        *@
+                        @if (Model.Status.ToString() != "Occupied")
+                        {
+                            
+                                bool isMyRes = ViewBag.IsMyReservation ?? false;
+                                // Thêm text-white để ép chữ trắng nếu nền đậm, hoặc dùng text-dark nếu nền sáng
+                                string btnClass = isMyRes ? "btn-success text-white" : "btn-primary text-white";
+                                string btnText = isMyRes ? "Tiếp tục lập hợp đồng (Đã trừ cọc)" : "Lập hợp đồng ngay";
+                            
+
+                            <a asp-action="CreateContract"
+                               asp-area="Datmthe176706"
+                               asp-controller="Users"
+                               asp-route-roomId="@Model.Id"
+                               class="btn @btnClass py-3 px-4 fw-bold shadow-sm">
+                                <i class="fa fa-file-contract me-2"></i>@btnText
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary w-100">
+                                <i class="fa fa-info-circle me-2"></i>Phòng này hiện đã có người thuê.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
