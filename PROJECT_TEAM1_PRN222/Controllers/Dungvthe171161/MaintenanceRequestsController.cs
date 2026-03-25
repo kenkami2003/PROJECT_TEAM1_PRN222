@@ -130,14 +130,23 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
         [HttpPost]
         public IActionResult Edit(MaintenanceRequest req)
         {
-            _context.MaintenanceRequests.Update(req);
+            var existing = _context.MaintenanceRequests.Find(req.Id);
 
-            // 🔥 Audit Log
+            if (existing == null)
+                return NotFound();
+
+            // ✅ Chỉ update những field cần
+            existing.Title = req.Title;
+            existing.Status = req.Status;
+
+            // ⚠️ GIỮ nguyên Description nếu form không có
+            // existing.Description = req.Description; // chỉ khi form có
+
             _context.AuditLogs.Add(new AuditLog
             {
-                UserId = req.TenantId,
+                UserId = existing.TenantId,
                 Action = "UPDATE_REQUEST",
-                Details = $"Cập nhật: {req.Title} - {req.Status}",
+                Details = $"Cập nhật: {existing.Title} - {existing.Status}",
                 Timestamp = DateTime.Now
             });
 

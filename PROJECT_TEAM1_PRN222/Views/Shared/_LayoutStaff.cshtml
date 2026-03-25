@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en"
+      class="light-style layout-menu-fixed"
+      dir="ltr"
+      data-theme="theme-default"
+      data-assets-path="/Admin/"
+      data-template="vertical-menu-template-free">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Staff Dashboard</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/Admin/img/favicon/favicon.ico" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans&display=swap" rel="stylesheet" />
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="/Admin/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="/Admin/vendor/css/core.css" />
+    <link rel="stylesheet" href="/Admin/vendor/css/theme-default.css" />
+    <link rel="stylesheet" href="/Admin/css/demo.css" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="/Admin/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+    <!-- Helpers -->
+    <script src="/Admin/vendor/js/helpers.js"></script>
+    <script src="/Admin/js/config.js"></script>
+</head>
+
+<body>
+
+    <div class="layout-wrapper layout-content-navbar">
+        <div class="layout-container">
+
+            <!-- SIDEBAR -->
+            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+
+                <div class="app-brand demo">
+                    <a asp-controller="StaffDashboard" asp-action="Index" class="app-brand-link">
+                        <span class="app-brand-text fw-bolder ms-2">Staff</span>
+                    </a>
+                </div>
+
+                <ul class="menu-inner py-1">
+
+                    <li class="menu-item @(Context.Request.Path.Value.Contains("StaffDashboard") ? "active" : "")">
+                        <a asp-controller="StaffDashboard" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                            <div>Dashboard</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(Context.Request.Path.Value.Contains("MaintenanceRequests") ? "active" : "")">
+                        <a asp-controller="MaintenanceRequests" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-wrench"></i>
+                            <div>Requests</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(Context.Request.Path.Value.Contains("AuditLogs") ? "active" : "")">
+                        <a asp-controller="AuditLogs" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-list-ul"></i>
+                            <div>Audit Logs</div>
+                        </a>
+                    </li>
+
+                </ul>
+
+            </aside>
+
+            <!-- PAGE -->
+            <div class="layout-page">
+
+                <!-- NAVBAR -->
+                <nav class="layout-navbar container-xxl navbar navbar-expand-xl align-items-center bg-navbar-theme">
+
+                    <div class="navbar-nav-right d-flex align-items-center ms-auto">
+                        <span class="me-3">👤 Staff</span>
+
+                        <a asp-controller="Account" asp-action="Logout" class="btn btn-danger btn-sm">
+                            Logout
+                        </a>
+                    </div>
+
+                </nav>
+
+                <!-- CONTENT -->
+                <div class="content-wrapper">
+
+                    <div class="container-xxl flex-grow-1 container-p-y">
+                        @RenderBody()
+                    </div>
+
+                    <!-- FOOTER -->
+                    <footer class="content-footer footer bg-footer-theme text-center py-3">
+                        © 2026 - Staff System
+                    </footer>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CORE JS -->
+    <script src="/Admin/vendor/libs/jquery/jquery.js"></script>
+    <script src="/Admin/vendor/libs/popper/popper.js"></script>
+    <script src="/Admin/vendor/js/bootstrap.js"></script>
+    <script src="/Admin/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/Admin/vendor/js/menu.js"></script>
+
+    <!-- MAIN JS -->
+    <script src="/Admin/js/main.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

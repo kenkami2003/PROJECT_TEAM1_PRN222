@@ -1,50 +1,27 @@
-﻿<!DOCTYPE html>
+﻿﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard</title>
+    <title>@ViewData["Title"] - Admin Dashboard</title>
 
     <link rel="stylesheet" href="~/Admin/vendor/fonts/boxicons.css" />
     <link rel="stylesheet" href="~/Admin/vendor/css/core.css" />
     <link rel="stylesheet" href="~/Admin/vendor/css/theme-default.css" />
 
     <link rel="stylesheet" href="~/Admin/css/demo.css" />
-</head>
+    <link rel="stylesheet" href="~/Admin/css/site.css" />
 
+    @RenderSection("VendorStyles", required: false)
+    @RenderSection("PageStyles", required: false)
+
+    <script src="~/Admin/js/config.js"></script>
+</head>
 <body>
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
 
-            <!-- 🔥 SIDEBAR -->
-            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-                <ul class="menu-inner py-1">
-
-                    <li class="menu-item">
-                        <a href="/StaffDashboard" class="menu-link">
-                            <i class="bx bx-home"></i>
-                            <div>Dashboard</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a href="/MaintenanceRequests" class="menu-link">
-                            <i class="bx bx-wrench"></i>
-                            <div>Requests</div>
-                        </a>
-                    </li>
-
-                    <li class="menu-item">
-                        <a href="/AuditLogs" class="menu-link">
-                            <i class="bx bx-history"></i>
-                            <div>Audit Logs</div>
-                        </a>
-                    </li>
-
-                </ul>
-            </aside>
-
-            <!-- 🔥 CONTENT -->
             <div class="layout-page">
                 <div class="content-wrapper">
                     <div class="container-xxl flex-grow-1 container-p-y">
@@ -54,7 +31,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -62,5 +38,7 @@
     <script src="~/Admin/vendor/js/bootstrap.js"></script>
     <script src="~/Admin/js/main.js"></script>
 
+    @RenderSection("VendorScripts", required: false)
+    @RenderSection("PageScripts", required: false)
 </body>
 </html>

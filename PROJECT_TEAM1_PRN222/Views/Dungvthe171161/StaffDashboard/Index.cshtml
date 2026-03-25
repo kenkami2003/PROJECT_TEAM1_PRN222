@@ -1,45 +1,41 @@
 ﻿@{
-    Layout = "~/Views/Datmthe176706/Admin/_LayoutAdmin.cshtml";
+    Layout = "~/Views/Shared/_LayoutStaff.cshtml";
 }
 
 <h3 class="mb-4">📊 Staff Dashboard</h3>
 
 <div class="row">
 
-    <!-- TOTAL -->
     <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
                 <h2>@ViewBag.TotalRequests</h2>
                 <p class="text-muted">Total Requests</p>
             </div>
         </div>
     </div>
 
-    <!-- OPEN -->
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-secondary border-4">
-            <div class="card-body text-center">
+        <div class="card shadow-sm border-start border-secondary border-4 text-center">
+            <div class="card-body">
                 <h2>@ViewBag.OpenRequests</h2>
                 <p class="text-muted">Open</p>
             </div>
         </div>
     </div>
 
-    <!-- PROCESSING -->
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-warning border-4">
-            <div class="card-body text-center">
+        <div class="card shadow-sm border-start border-warning border-4 text-center">
+            <div class="card-body">
                 <h2>@ViewBag.Processing</h2>
                 <p class="text-muted">Processing</p>
             </div>
         </div>
     </div>
 
-    <!-- FIXED -->
     <div class="col-md-3">
-        <div class="card shadow-sm border-start border-success border-4">
-            <div class="card-body text-center">
+        <div class="card shadow-sm border-start border-success border-4 text-center">
+            <div class="card-body">
                 <h2>@ViewBag.Fixed</h2>
                 <p class="text-muted">Fixed</p>
             </div>
@@ -52,19 +48,16 @@
 
 <div class="row mt-4">
 
-    <!-- QUICK ACTION -->
     <div class="col-md-6">
         <div class="card shadow-sm">
-            <div class="card-header">
-                ⚡ Quick Actions
-            </div>
+            <div class="card-header">⚡ Quick Actions</div>
             <div class="card-body d-flex gap-2">
 
-                <a href="/MaintenanceRequests" class="btn btn-primary">
+                <a asp-controller="MaintenanceRequests" asp-action="Index" class="btn btn-primary">
                     🔧 Requests
                 </a>
 
-                <a href="/AuditLogs" class="btn btn-dark">
+                <a asp-controller="AuditLogs" asp-action="Index" class="btn btn-dark">
                     📜 Audit Logs
                 </a>
 
@@ -72,12 +65,9 @@
         </div>
     </div>
 
-    <!-- SYSTEM INFO -->
     <div class="col-md-6">
         <div class="card shadow-sm">
-            <div class="card-header">
-                📌 System Info
-            </div>
+            <div class="card-header">📌 System Info</div>
             <div class="card-body">
                 <p>Total Logs: <b>@ViewBag.TotalLogs</b></p>
             </div>

@@ -29,7 +29,10 @@
                     <option value="Fixed">Fixed</option>
                 </select>
             </div>
-
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+            </div>
             <!-- Buttons -->
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
@@ -40,6 +43,7 @@
                     Back
                 </a>
             </div>
+           
 
         </form>
     </div>
