@@ -12,12 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PROJECT_TEAM1_PRN222.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:PROJECT_TEAM1_PRN222/Migrations/20260321170758_InitialCreate.Designer.cs
-    [Migration("20260321170758_InitialCreate")]
-========
-    [Migration("20260322043958_InitialCreate")]
->>>>>>>> origin/develop:PROJECT_TEAM1_PRN222/Migrations/20260322043958_InitialCreate.Designer.cs
-    partial class InitialCreate
+    [Migration("20260322050928_AddNavigationToContract")]
+    partial class AddNavigationToContract
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -165,6 +161,8 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .IsUnique();
 
                     b.HasIndex("RoomId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Contracts");
                 });
@@ -650,7 +648,15 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BoardingHouseManagement.Models.User", "Tenan")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Room");
+
+                    b.Navigation("Tenan");
                 });
 
             modelBuilder.Entity("BoardingHouseManagement.Models.Invoice", b =>

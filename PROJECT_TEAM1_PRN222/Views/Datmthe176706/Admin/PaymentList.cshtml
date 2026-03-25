@@ -1,0 +1,154 @@
+﻿@model IEnumerable<PaymentVerificationViewModel>
+@using BoardingHouseManagement.Models
+@using PROJECT_TEAM1_PRN222.ViewModel
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="py-3 mb-4"><span class="text-muted fw-light">Quản lý /</span> Xác minh thanh toán</h4>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">Bộ lọc giao dịch</h5>
+            <form method="get" asp-action="PaymentList" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="bx bx-search"></i></span>
+                            <input type="text" name="searchName" class="form-control" placeholder="Tìm tên khách hàng..." value="@Context.Request.Query["searchName"]">
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="typeFilter" class="form-select" onchange="this.form.submit()">
+                            <option value="">Tất cả loại giao dịch</option>
+                            <option value="Reservation" selected="@(Context.Request.Query["typeFilter"] == "Reservation")">Giữ chỗ (Reservation)</option>
+                            <option value="Contract" selected="@(Context.Request.Query["typeFilter"] == "Contract")">Hợp đồng (Contract)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="statusFilter" class="form-select" onchange="this.form.submit()">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Pending" selected="@(Context.Request.Query["statusFilter"] == "Pending")">Chờ xác minh</option>
+                            <option value="Confirmed" selected="@(Context.Request.Query["statusFilter"] == "Confirmed")">Đã duyệt</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <a href="@Url.Action("PaymentList")" class="btn btn-outline-secondary w-100">
+                            <i class="bx bx-refresh me-1"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <h5 class="card-header">Danh sách biên lai gửi đến</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Biên lai</th>
+                        <th>Người gửi</th>
+                        <th>Loại giao dịch</th>
+                        <th>Số tiền</th>
+                        <th>Thời gian gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="avatar avatar-lg me-2">
+                                    @if (!string.IsNullOrEmpty(item.ImagePath))
+                                    {
+                                        <a href="~/uploads/@(item.Type == "Reservation" ? "proofs" : "contracts")/@item.ImagePath" target="_blank">
+                                            <img src="~/uploads/@(item.Type == "Reservation" ? "proofs" : "contracts")/@item.ImagePath" alt="Receipt" class="rounded" style="object-fit: cover;">
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="avatar-initial rounded bg-label-secondary"><i class="bx bx-image-alt"></i></span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-dark">@item.FullName</span>
+                                    <small class="text-muted">ID: @item.Id.ToString().Substring(0, 8).ToUpper()</small>
+                                </div>
+                            </td>
+                            <td>
+                                @if (item.Type == "Reservation")
+                                {
+                                    <span class="badge bg-label-info"><i class="bx bx-bookmark-plus me-1"></i> Giữ chỗ</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-label-primary"><i class="bx bx-file me-1"></i> Hợp đồng</span>
+                                }
+                            </td>
+                            <td class="fw-bold text-success">@item.Amount.ToString("N0") đ</td>
+                            <td>
+                                <span class="text-muted"><i class="bx bx-calendar-event me-1"></i> @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </td>
+                            <td>
+                                @if (item.IsConfirmed)
+                                {
+                                    <span class="badge bg-label-success">
+                                        <i class="bx bx-check-double me-1"></i> Đã duyệt
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-label-warning">
+                                        <i class="bx bx-sync bx-spin me-1"></i> Chờ xác minh
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        @if (item.Type == "Reservation")
+                                        {
+                                            <a class="dropdown-item" asp-action="Details" asp-controller="Reservations" asp-route-id="@item.Id">
+                                                <i class="bx bx-show me-1"></i> Chi tiết giữ chỗ
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="dropdown-item" asp-action="ContractDetails" asp-controller="Contracts" asp-route-id="@item.Id">
+                                                <i class="bx bx-show me-1"></i> Chi tiết hợp đồng
+                                            </a>
+                                        }
+
+                                        @if (!item.IsConfirmed)
+                                        {
+                                            <hr class="dropdown-divider">
+                                            <a class="dropdown-item text-primary" href="javascript:void(0);">
+                                                <i class="bx bx-check-circle me-1"></i> Duyệt nhanh tiền
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Không tìm thấy dữ liệu phù hợp.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
