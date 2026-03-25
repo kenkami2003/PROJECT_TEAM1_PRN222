@@ -49,6 +49,9 @@ namespace BoardingHouseManagement.Models
                 .WithMany(b => b.Rooms)
                 .HasForeignKey(r => r.BuildingId)
                 .OnDelete(DeleteBehavior.Cascade); // Xóa Building sẽ xóa luôn Room
+            modelBuilder.Entity<TemporaryGuest>()
+                .Property(t => t.TotalAmount)
+                .HasPrecision(18, 2);
         }
     }
 }

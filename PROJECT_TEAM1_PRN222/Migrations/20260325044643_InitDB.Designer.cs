@@ -12,12 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PROJECT_TEAM1_PRN222.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:PROJECT_TEAM1_PRN222/Migrations/20260321170758_InitialCreate.Designer.cs
-    [Migration("20260321170758_InitialCreate")]
-========
-    [Migration("20260322043958_InitialCreate")]
->>>>>>>> origin/develop:PROJECT_TEAM1_PRN222/Migrations/20260322043958_InitialCreate.Designer.cs
-    partial class InitialCreate
+    [Migration("20260325044643_InitDB")]
+    partial class InitDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -165,6 +161,8 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .IsUnique();
 
                     b.HasIndex("RoomId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Contracts");
                 });
@@ -349,6 +347,15 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<double>("PriceUnitElectricity")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PriceUnitWater")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ServiceFee")
+                        .HasColumnType("float");
+
                     b.HasKey("Id");
 
                     b.ToTable("Properties");
@@ -464,9 +471,19 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Condition")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("InstalledDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -524,20 +541,45 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("IdentityCardBack")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdentityCardFront")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("IdentityNumber")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsCheckedOut")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("PaymentProof")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
 
                     b.ToTable("TemporaryGuests");
                 });
@@ -650,7 +692,15 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BoardingHouseManagement.Models.User", "Tenan")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Room");
+
+                    b.Navigation("Tenan");
                 });
 
             modelBuilder.Entity("BoardingHouseManagement.Models.Invoice", b =>
@@ -735,6 +785,17 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("BoardingHouseManagement.Models.TemporaryGuest", b =>
+                {
+                    b.HasOne("BoardingHouseManagement.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("BoardingHouseManagement.Models.User", b =>
                 {
                     b.HasOne("BoardingHouseManagement.Models.Role", "Role")
@@ -749,7 +810,7 @@ namespace PROJECT_TEAM1_PRN222.Migrations
             modelBuilder.Entity("BoardingHouseManagement.Models.UtilityReading", b =>
                 {
                     b.HasOne("BoardingHouseManagement.Models.Room", "Room")
-                        .WithMany()
+                        .WithMany("UtilityReadings")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -792,6 +853,8 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                     b.Navigation("Contracts");
 
                     b.Navigation("RoomAssets");
+
+                    b.Navigation("UtilityReadings");
                 });
 #pragma warning restore 612, 618
         }
