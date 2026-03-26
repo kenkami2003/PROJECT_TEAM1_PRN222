@@ -1,0 +1,116 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model BoardingHouseManagement.Models.Room
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container-fluid header bg-white p-0">
+    <div class="row g-0 align-items-center flex-column-reverse flex-md-row">
+        <div class="col-md-6 p-5 mt-lg-5">
+            <h1 class="display-5 animated fadeIn mb-4">Chi tiết <span class="text-primary">Phòng @Model.RoomNumber</span></h1>
+            <p class="animated fadeIn mb-4 pb-2">Xem đầy đủ thông tin về giá thuê, tiền cọc và tiện ích đi kèm.</p>
+        </div>
+        <div class="col-md-6 animated fadeIn">
+            <img class="img-fluid" src="~/user/img/header.jpg" alt="">
+        </div>
+    </div>
+</div>
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="position-relative overflow-hidden rounded shadow-sm border">
+                    @* Sửa lỗi đường dẫn ảnh dư thừa dấu / *@
+                    <img class="img-fluid w-100" src="" alt="Room Image"
+                         onerror="this.src='/user/img/property-1.jpg';">
+
+                    <div class="bg-primary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">
+                        @if (Model.Status == RoomStatus.Available)
+                        {
+                            <span>Còn trống</span>
+                        }
+                        else if (Model.Status == RoomStatus.Reserved)
+                        {
+                            <span>Đã giữ chỗ</span>
+                        }
+                        else
+                        {
+                            <span>Đã thuê</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                <h1 class="mb-4">Phòng @Model.RoomNumber</h1>
+                <p class="mb-4 text-muted">@Model.Description</p>
+
+                <div class="row gy-2 gx-4 mb-4">
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-money-bill-alt text-primary me-2"></i>Giá thuê: <strong>@Model.BasePrice.ToString("N0") VNĐ</strong></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-shield-alt text-primary me-2"></i>Tiền cọc: @Model.DepositAmount.ToString("N0") VNĐ</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-building text-primary me-2"></i>Tòa nhà: @Model.Building?.Name</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-check text-primary me-2"></i>Trạng thái: @Model.Status</p>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <h5 class="mb-3">Thao tác nghiệp vụ</h5>
+                    <div class="d-flex flex-wrap gap-2">
+
+                        @* TH: ĐANG CHỜ PHÊ DUYỆT (Dành cho cả Giữ chỗ và Hợp đồng) *@
+                        @if (ViewBag.HasPendingReservation == true || ViewBag.HasPendingContract == true)
+                        {
+                            <div class="alert alert-warning w-100 border-0 shadow-sm">
+                                <i class="fa fa-hourglass-half me-2"></i>
+                                Yêu cầu (Giữ chỗ/Hợp đồng) của bạn đang chờ Admin xác nhận.
+                                Vui lòng kiểm tra lại sau!
+                            </div>
+                        }
+
+                        @* TH: PHÒNG CÒN TRỐNG *@
+                        else if (Model.Status == RoomStatus.Available)
+                        {
+                            <a asp-action="Reservation" asp-controller="Users" asp-area="Datmthe176706" asp-route-roomId="@Model.Id" class="btn btn-warning py-3 px-4 fw-bold">Giữ chỗ trước</a>
+                            <a asp-action="CreateContract" asp-controller="Users" asp-area="Datmthe176706" asp-route-roomId="@Model.Id" class="btn btn-primary py-3 px-4 text-white fw-bold">Lập hợp đồng ngay</a>
+                        }
+
+                        @* TH: ĐÃ ĐƯỢC DUYỆT GIỮ CHỖ (Nút xanh hiện ra để làm hợp đồng) *@
+                        else if (Model.Status == RoomStatus.Reserved && ViewBag.IsMyReservationApproved == true)
+                        {
+                            <a asp-action="CreateContract" asp-controller="Users" asp-area="Datmthe176706" asp-route-roomId="@Model.Id" class="btn btn-success py-3 px-4 text-white fw-bold">
+                                Tiếp tục lập hợp đồng (Đã xác nhận cọc)
+                            </a>
+                        }
+
+                        @* TH: PHÒNG ĐÃ CÓ CHỦ (Admin đã xác nhận IsActive = true) *@
+                        else if (Model.Status == RoomStatus.Occupied)
+                        {
+                            if (ViewBag.IsMyActiveContract == true)
+                            {
+                                <div class="alert alert-success w-100 border-0">
+                                    <i class="fa fa-check-circle me-2"></i> Bạn đã thuê phòng này thành công.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary w-100 border-0">
+                                    <i class="fa fa-ban me-2"></i> Phòng này đã được thuê.
+                                </div>
+                            }
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

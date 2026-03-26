@@ -1,0 +1,175 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // 1. Cấu hình thông tin tài khoản 
+    string bankId = "BIDV";
+    string accountNo = "5011801614";
+    string accountName = "MAI TIEN DAT";
+
+    // Phí giữ chỗ tính toán
+    var reservationFee = Model.DepositAmount / 2;
+
+    // Nội dung chuyển khoản
+    string description = "GIU CHO " + Model.RoomNumber.ToUpper();
+
+    // 2. QR URL
+    string qrUrl = $"https://img.vietqr.io/image/{bankId}-{accountNo}-compact2.jpg?amount={reservationFee}&addInfo={description}&accountName={accountName}";
+}
+@using BoardingHouseManagement.Models
+@model BoardingHouseManagement.Models.Room
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container-fluid header bg-white p-0">
+    <div class="row g-0 align-items-center flex-column-reverse flex-md-row">
+        <div class="col-md-6 p-5 mt-lg-5">
+            <h1 class="display-5 animated fadeIn mb-4">Hợp đồng giữ chỗ</h1>
+        </div>
+        <div class="col-md-6 animated fadeIn">
+            <img class="img-fluid" src="~/user/img/header.jpg" alt="">
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+            <h1 class="mb-3">Hợp đồng giữ chỗ</h1>
+            <p>Đảm bảo minh bạch đúng giá.</p>
+        </div>
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex align-items-center bg-white rounded p-3" style="border: 1px dashed rgba(0, 185, 142, .3)">
+                        <div class="icon me-3" style="width: 45px; height: 45px;">
+                            <i class="fa fa-money-bill-wave text-primary"></i>
+                        </div>
+                        <span>Giá cọc: <strong>@Model.DepositAmount.ToString("N0") VNĐ</strong></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex align-items-center bg-white rounded p-3" style="border: 1px dashed rgba(0, 185, 142, .3)">
+                        <div class="icon me-3" style="width: 45px; height: 45px;">
+                            <i class="fa fa-clock text-primary"></i>
+                        </div>
+                        <span>Thời gian giữ: <strong>48 Giờ</strong></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
+                <div class="bg-light rounded p-3">
+                    <div class="d-flex align-items-center bg-white rounded p-3" style="border: 1px dashed rgba(0, 185, 142, .3)">
+                        <div class="icon me-3" style="width: 45px; height: 45px;">
+                            <i class="fa fa-phone-alt text-primary"></i>
+                        </div>
+                        <span>Liên hệ: +012 345 6789</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="bg-light rounded p-4 h-100">
+                    <h4 class="mb-4 border-bottom pb-2"><i class="fa fa-user-edit me-2 text-primary"></i>Thông tin người đặt chỗ</h4>
+
+                    @if (Model != null && (int)Model.Status == 0)
+                    {
+                        <form asp-action="CreateReservation" asp-controller="Users" asp-area="Datmthe176706" method="post" enctype="multipart/form-data"
+                              onsubmit="return confirm('Xác nhận đặt chỗ phòng @Model.RoomNumber?')">
+
+                            <input type="hidden" name="RoomId" value="@Model.Id" />
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control bg-white" id="name" value="@(ViewBag.CurrentUser?.FullName ?? "Khách dùng thử")" readonly>
+                                        <label for="name">Họ và tên</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="email" class="form-control bg-white" id="email" value="@(ViewBag.CurrentUser?.Email ?? "test@gmail.com")" readonly>
+                                        <label for="email">Địa chỉ Email</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control bg-white text-primary fw-bold" id="feeDisplay" value="@reservationFee.ToString("N0") VNĐ" readonly>
+                                        <label for="feeDisplay">Số tiền cọc giữ chỗ (50%)</label>
+                                        <input type="hidden" name="ReservationFee" value="@reservationFee" />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input type="datetime-local" name="ExpiryDate" class="form-control" id="expiry" value="@DateTime.Now.AddDays(2).ToString("yyyy-MM-ddTHH:mm")" required>
+                                        <label for="expiry">Thời hạn giữ chỗ (Tự động 48h)</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <textarea name="Note" class="form-control" placeholder="Ghi chú" style="height: 100px"></textarea>
+                                        <label for="Note">Ghi chú thêm (Nếu có)</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <div class="p-4 border border-2 border-dashed rounded bg-white text-center">
+                                        <label class="form-label fw-bold d-block mb-2"><i class="fa fa-cloud-upload-alt me-2 text-primary"></i>Tải ảnh minh chứng chuyển khoản</label>
+                                        <input type="file" name="proofFile" class="form-control" accept="image/*" required>
+                                        <p class="small text-muted mt-2 mb-0">Vui lòng thanh toán theo mã QR bên phải trước khi tải ảnh.</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <button class="btn btn-primary w-100 py-3 fw-bold" type="submit">XÁC NHẬN ĐẶT PHÒNG & GỬI ẢNH</button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-5 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="bg-white rounded p-4 shadow-sm border h-100">
+                    <h4 class="mb-4 text-center">Thông tin chuyển khoản</h4>
+
+                    <div class="text-center mb-4">
+                        <div class="d-inline-block p-3 rounded shadow-sm border border-primary border-2 bg-white">
+                            <img class="img-fluid rounded" src="@qrUrl" alt="QR Code" style="max-width: 220px;">
+                            <div class="mt-2 small text-primary fw-bold"><i class="fa fa-qrcode me-2"></i>Quét mã VietQR</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded">
+                        <div class="mb-3 border-bottom pb-2">
+                            <label class="text-muted small d-block">Ngân hàng</label>
+                            <span class="fw-bold text-dark text-uppercase">@bankId - TMCP ĐẦU TƯ VÀ PHÁT TRIỂN VN</span>
+                        </div>
+                        <div class="mb-3 border-bottom pb-2">
+                            <label class="text-muted small d-block">Số tài khoản</label>
+                            <span class="fw-bold text-dark fs-5">@accountNo</span>
+                        </div>
+                        <div class="mb-3 border-bottom pb-2">
+                            <label class="text-muted small d-block">Chủ tài khoản</label>
+                            <span class="fw-bold text-dark">@accountName</span>
+                        </div>
+                        <div class="mb-3 border-bottom pb-2">
+                            <label class="text-muted small d-block">Số tiền</label>
+                            <span class="fw-bold text-danger fs-4">@reservationFee.ToString("N0") VNĐ</span>
+                        </div>
+                        <div class="mb-0">
+                            <label class="text-muted small d-block">Nội dung chuyển khoản</label>
+                            <span class="badge bg-primary fs-6">@description</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning mt-4 py-2">
+                        <small><i class="fa fa-info-circle me-1"></i> <b>Lưu ý:</b> Hệ thống sẽ tự động hủy yêu cầu nếu không nhận được minh chứng sau 24h.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

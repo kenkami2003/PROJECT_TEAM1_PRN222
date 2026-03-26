@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+
+    <link rel="stylesheet" href="~/Admin/vendor/fonts/boxicons.css" />
+    <link rel="stylesheet" href="~/Admin/vendor/css/core.css" />
+    <link rel="stylesheet" href="~/Admin/vendor/css/theme-default.css" />
+
+    <link rel="stylesheet" href="~/Admin/css/demo.css" />
+    <link rel="stylesheet" href="~/Admin/css/site.css" />
+
+    @RenderSection("VendorStyles", required: false)
+    @RenderSection("PageStyles", required: false)
+
+    <script src="~/Admin/js/config.js"></script>
+</head>
+<body>
+    <div class="layout-wrapper layout-content-navbar">
+        <div class="layout-container">
+
+            <div class="layout-page">
+                <div class="content-wrapper">
+                    <div class="container-xxl flex-grow-1 container-p-y">
+
+                        @RenderBody()
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/Admin/vendor/js/bootstrap.js"></script>
+    <script src="~/Admin/js/main.js"></script>
+
+    @RenderSection("VendorScripts", required: false)
+    @RenderSection("PageScripts", required: false)
+</body>
+</html>

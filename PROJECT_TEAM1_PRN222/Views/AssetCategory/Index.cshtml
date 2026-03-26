@@ -1,0 +1,73 @@
+﻿@model IEnumerable<BoardingHouseManagement.Models.AssetCategory>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Danh mục tài sản";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Danh sách các loại tài sản trọ</h5>
+            <a href="~/AssetCategory/Create" class="btn btn-primary">
+                <i class="bx bx-plus me-1"></i> Thêm loại mới
+            </a>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tên loại tài sản</th>
+                        <th>Giá đền bù mặc định</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><i class="bx bx-package aria-hidden-true me-3"></i> <strong>@item.Name</strong></td>
+                            <td class="text-danger fw-bold">@item.DefaultCompensationPrice.ToString("N0") đ</td>
+                            
+                            <td>
+                                <div class="dropdown">
+                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">
+                                            <i class="bx bx-edit-alt me-1"></i> Sửa
+                                        </a>
+                                        <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="confirmDelete('@item.Id')">
+                                            <i class="bx bx-trash me-1"></i> Xóa
+                                        </a>
+                                    </div>
+
+                                    <form id="delete-form-@item.Id" asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:none;">
+                                        @Html.AntiForgeryToken()
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center">Chưa có loại tài sản nào. Hãy bấm "Thêm loại mới"</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+         function confirmDelete(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa loại tài sản này không?')) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        }
+    </script>
+}

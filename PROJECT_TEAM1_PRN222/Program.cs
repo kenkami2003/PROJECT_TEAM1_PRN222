@@ -23,7 +23,7 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
 // Add services to the container.
 builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -32,14 +32,25 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "admim",
+    pattern: "Admin/{controller=Portal}/{action=Index}/{id?}");
+
+app.MapControllers();
 
 app.Run();

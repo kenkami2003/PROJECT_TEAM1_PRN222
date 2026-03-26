@@ -43,7 +43,7 @@
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
-                <a href="~/" class="navbar-brand d-flex align-items-center text-center">
+                <a href="~/Datmthe176706/Users" class="navbar-brand d-flex align-items-center text-center">
                     <div class="icon p-2 me-2">
                         <img class="img-fluid" src="~/user/img/icon-deal.png" alt="Icon" style="width: 30px; height: 30px;">
                     </div>
@@ -54,34 +54,29 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto">
-                        <a href="~/" class="nav-item nav-link active">Home</a>
-                        <a href="~/Home/About" class="nav-item nav-link">About</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Property</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="~/Property/List" class="dropdown-item">Property List</a>
-                                <a href="~/Property/Type" class="dropdown-item">Property Type</a>
-                                <a href="~/Property/Agent" class="dropdown-item">Property Agent</a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle text-primary fw-bold" data-bs-toggle="dropdown" style="display: flex; align-items: center;">
+                                    <i class="fa fa-user me-2"></i>@User.Identity.Name
+                                </a>
+                                <div class="dropdown-menu rounded-0 m-0 shadow border-0">
+                                    <a href="~/Profile" class="dropdown-item py-2"><i class="fa fa-address-card me-2 text-primary"></i>Hồ sơ cá nhân</a>
+                                    <a href="~/Datmthe176706/Users/MyRoom" class="dropdown-item py-2"><i class="fa fa-home me-2 text-warning"></i>Phòng của tôi</a>
+                                    @if (User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
+                                    {
+                                        <a href="~/Admin/Portal" class="dropdown-item py-2"><i class="fa fa-cogs me-2 text-success"></i>Trang quản trị</a>
+                                    }
+                                    <div class="dropdown-divider"></div>
+                                    <a href="~/Profile/Logout" class="dropdown-item py-2 text-danger"><i class="fa fa-sign-out-alt me-2 text-danger"></i>Đăng xuất</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="~/Home/Testimonial" class="dropdown-item">Testimonial</a>
-                                <a href="~/Home/Error" class="dropdown-item">404 Error</a>
-                            </div>
-                        </div>
-                        <a href="~/Home/Contact" class="nav-item nav-link">Contact</a>
+                        }
+                        else
+                        {
+                            <a href="~/Login/Index" class="nav-item nav-link fw-bold text-primary"><i class="fa fa-sign-in-alt me-1"></i>Đăng nhập</a>
+                        }
                     </div>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <a href="~/Profile" class="btn btn-primary px-3 d-none d-lg-flex me-2">Hồ sơ của tôi</a>
-                        <a href="~/Profile/Logout" class="btn btn-danger px-3 d-none d-lg-flex">Đăng xuất</a>
-                    }
-                    else
-                    {
-                        <a href="~/Login" class="btn btn-primary px-3 d-none d-lg-flex">Đăng nhập</a>
-                    }
                 </div>
             </nav>
         </div>

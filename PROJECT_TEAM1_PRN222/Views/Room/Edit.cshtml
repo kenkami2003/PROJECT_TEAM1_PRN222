@@ -1,0 +1,125 @@
+﻿@using BoardingHouseManagement.Models
+@model BoardingHouseManagement.Models.Room
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chỉnh sửa phòng " + Model.RoomNumber;
+
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Building" asp-action="Index">Quản lý dãy</a></li>
+                    <li class="breadcrumb-item active">Sửa phòng @Model.RoomNumber</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin phòng</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Thuộc dãy trọ</label>
+                                    <select asp-for="BuildingId" class="form-select" asp-items="ViewBag.BuildingId"></select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Số phòng / Tên phòng</label>
+                                    <input asp-for="RoomNumber" class="form-control" placeholder="Ví dụ: 101, A1..." />
+                                    <span asp-validation-for="RoomNumber" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Trạng thái phòng</label>
+                                    <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<RoomStatus>()"></select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Giá thuê (VNĐ/Tháng)</label>
+                                    <div class="input-group">
+                                        <input asp-for="BasePrice" type="number" class="form-control" />
+                                        <span class="input-group-text">đ</span>
+                                    </div>
+                                    <span asp-validation-for="BasePrice" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tiền đặt cọc (VNĐ)</label>
+                                    <div class="input-group">
+                                        <input asp-for="DepositAmount" type="number" class="form-control" />
+                                        <span class="input-group-text">đ</span>
+                                    </div>
+                                    <span asp-validation-for="DepositAmount" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ghi chú thêm</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả nội thất, diện tích..."></textarea>
+                        </div>
+
+                        <hr />
+                        <h5 class="fw-bold py-3 mb-2"><i class="bx bx-package me-2"></i>Trang thiết bị trong phòng</h5>
+                        <div class="row">
+                            @foreach (var asset in Model.RoomAssets)
+                            {
+                                <div class="card mb-3 p-3 border">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bx bx-package me-2"></i>
+                                        <strong>@asset.AssetCategory?.Name</strong>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            @if (!string.IsNullOrEmpty(asset.ImageUrl))
+                                            {
+                                                <img src="@asset.ImageUrl" class="rounded w-100" style="height:100px; object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded text-center py-4">Chưa có ảnh</div>
+                                            }
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label small">Chụp ảnh mới cho thiết bị này:</label>
+                                            <input type="file" name="AssetFiles_@asset.Id" class="form-control" accept="image/*" capture="camera" />
+
+                                            <input type="text" name="Condition_@asset.Id" value="@asset.Condition" class="form-control mt-2" placeholder="Tình trạng đồ..." />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="Room" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-1"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

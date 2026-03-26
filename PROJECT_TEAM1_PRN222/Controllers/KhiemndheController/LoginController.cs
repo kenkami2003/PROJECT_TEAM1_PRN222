@@ -22,7 +22,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
         [HttpGet]
         public IActionResult Index()
         {
-            if (User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
+            if (User.Identity.IsAuthenticated) return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
             return View("~/Views/Khiemndhe/Login.cshtml");
         }
 
@@ -78,7 +78,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
             {
                 return RedirectToAction("Index", "Portal", new { area = "" });
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }
 
         [HttpGet]
@@ -147,7 +147,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
             {
                 return RedirectToAction("Index", "Portal", new { area = "" });
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }
 
         private async Task SignInUser(User user)

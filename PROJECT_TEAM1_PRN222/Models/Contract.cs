@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +17,9 @@ namespace BoardingHouseManagement.Models
         [Required]
         public Guid TenantId { get; set; }
 
+        [ForeignKey("TenantId")]
+        public virtual User? Tenan { get; set; }
+
         [Required]
         public Guid RoomId { get; set; }
 
@@ -30,5 +33,9 @@ namespace BoardingHouseManagement.Models
 
         public Room Room { get; set; }
         public ICollection<Invoice> Invoices { get; set; }
+
+        // thêm
+        public string? ContractProofImage { get; set; } // Để lưu tên ảnh minh chứng chuyển khoản
+        public DateTime CreatedAt { get; set; } = DateTime.Now; // Để biết hợp đồng tạo lúc nào
     }
 }

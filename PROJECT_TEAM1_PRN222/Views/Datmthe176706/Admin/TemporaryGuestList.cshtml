@@ -1,0 +1,201 @@
+﻿@model IEnumerable<BoardingHouseManagement.Models.TemporaryGuest>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@Html.AntiForgeryToken()
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Khách Thuê Ngắn Hạn";
+}
+
+
+<div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0"><i class="bx bx-filter-alt me-2"></i>Bộ lọc & Công cụ</h5>
+        <a asp-action="CreateShortTerm" class="btn btn-primary">
+            <i class="bx bx-plus me-1"></i> Đăng ký khách mới
+        </a>
+    </div>
+
+    <form asp-action="TemporaryGuestList" method="get" id="filterForm" class="border-top pt-3">
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-bold">Tìm kiếm</label>
+                <div class="input-group input-group-merge">
+                    <span class="input-group-text"><i class="bx bx-search"></i></span>
+                    <input type="text" name="searchTerm" class="form-control"
+                           placeholder="Tên khách ..."
+                           value="@ViewBag.CurrentSearch" />
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <label class="form-label fw-bold">Ngày hết hạn trả</label>
+                <input type="date" name="expiryDate" class="form-control"
+                       value="@ViewBag.CurrentExpiryDate" />
+            </div>
+
+            <div class="col-6 col-md-3">
+                <label class="form-label fw-bold">Trạng thái</label>
+                <select name="status" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending")">Chờ thanh toán</option>
+                    <option value="Active" selected="@(ViewBag.CurrentStatus == "Active")">Đang ở</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Lọc
+                </button>
+                <a href="@Url.Action("TemporaryGuestList")" class="btn btn-outline-secondary" title="Xóa lọc">
+                    <i class="bx bx-refresh"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h5 class="card-header">Quản lý khách thuê ngắn hạn (Vãng lai)</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Khách hàng</th>
+                    <th>Phòng</th>
+                    <th>Thời gian lưu trú</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">@item.FullName</span>
+                                <small class="text-muted"><i class="bx bx-phone-call"></i> @item.PhoneNumber</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold">@item.Room?.RoomNumber</span>
+                                <small class="text-muted">@item.Room?.Building?.Name</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="small">
+                                <div><i class="bx bx-log-in-circle text-success"></i> @item.ArrivalDate.ToString("dd/MM/yyyy")</div>
+                                <div><i class="bx bx-log-out-circle text-danger"></i> @item.DepartureDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                        </td>
+
+                        <td class="fw-bold text-primary">
+                            @item.TotalAmount.ToString("N0") VNĐ
+                        </td>
+
+                        <td>
+                            @if (item.IsPaid)
+                            {
+                                <span class="badge bg-label-success">
+                                    <i class="bx bx-check me-1"></i> Đã thu tiền
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-label-warning">
+                                    <i class="bx bx-error me-1"></i> Chờ thanh toán
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.IsCheckedOut)
+                            {
+                                <span class="badge bg-secondary">Đã trả phòng</span>
+                            }
+                            else if (DateTime.Now >= item.ArrivalDate && DateTime.Now <= item.DepartureDate)
+                            {
+                                <span class="badge bg-success">Đang ở</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info">Sắp đến</span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-action="TemporaryDetails" asp-route-id="@item.Id">
+                                        <i class="bx bx-show me-1"></i> Xem hồ sơ (CCCD)
+                                    </a>
+
+                                    @if (!item.IsPaid)
+                                    {
+                                        <a class="dropdown-item text-primary" asp-action="PaymentQR" asp-route-id="@item.Id">
+                                            <i class="bx bx-qr-scan me-1"></i> Thu tiền & QR
+                                        </a>
+                                    }
+
+                                    @if (!item.IsCheckedOut)
+                                    {
+                                        <a class="dropdown-item text-danger" href="javascript:void(0);"
+                                           onclick="confirmCheckOut('@item.Id')">
+                                            <i class="bx bx-exit me-1"></i> Trả phòng (Check-out)
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Định nghĩa hàm trong scope window để các thẻ <a> ở trên có thể gọi được
+        window.confirmCheckOut = function(guestId) {
+            if (confirm("Xác nhận khách này muốn trả phòng? Hệ thống sẽ giải phóng phòng về trạng thái TRỐNG.")) {
+
+                // Lấy token bảo mật
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                // Sử dụng Fetch API (hiện đại hơn AJAX và không cần JQuery)
+                fetch('/Datmthe176706/TemporaryGuests/CheckOut', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'id': guestId,
+                        '__RequestVerificationToken': token
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload(); // Tải lại trang để cập nhật trạng thái
+                    } else {
+                        alert("Lỗi: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+                });
+            }
+        };
+    });
+</script>

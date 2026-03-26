@@ -1,0 +1,104 @@
+﻿@model BoardingHouseManagement.Models.UtilityBatchViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <h4 class="mb-3 text-primary"><i class="fas fa-edit me-2"></i>Nhập số Điện & Nước</h4>
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="small fw-bold">Khu trọ</label>
+                    <select name="propertyId" class="form-select shadow-sm" asp-items="ViewBag.PropertyList" onchange="this.form.submit()">
+                        <option value="">-- Chọn khu trọ --</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="small fw-bold">Tháng</label>
+                    <input type="number" name="month" class="form-control shadow-sm" value="@Model.Month" />
+                </div>
+                <div class="col-md-2">
+                    <label class="small fw-bold">Năm</label>
+                    <input type="number" name="year" class="form-control shadow-sm" value="@Model.Year" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark w-100 shadow-sm">Lấy dữ liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.PropertyId != Guid.Empty)
+    {
+        <form asp-action="SaveBatch" method="post">
+            <input type="hidden" asp-for="PropertyId" />
+            <input type="hidden" asp-for="Month" />
+            <input type="hidden" asp-for="Year" />
+
+            <div class="card shadow-sm border-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary text-center">
+                            <tr>
+                                <th>Phòng (Dãy)</th>
+                                <th width="150">Điện Cũ</th>
+                                <th width="150">Điện Mới</th>
+                                <th width="150">Nước Cũ</th>
+                                <th width="150">Nước Mới</th>
+                                <th class="text-end">Thành tiền dự kiến</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Rooms.Count; i++)
+                            {
+                                <tr class="room-row">
+                                    <td>
+                                        <div class="fw-bold text-primary">@Model.Rooms[i].RoomNumber</div>
+                                        <small class="text-muted">(@Model.Rooms[i].BuildingName)</small>
+                                        <input type="hidden" asp-for="Rooms[i].RoomId" />
+                                        <input type="hidden" class="p-elec" value="@Model.Rooms[i].PriceUnitElectricity" />
+                                        <input type="hidden" class="p-water" value="@Model.Rooms[i].PriceUnitWater" />
+                                        <input type="hidden" class="p-service" value="@Model.Rooms[i].ServiceFee" />
+                                        <input type="hidden" class="p-room" value="@Model.Rooms[i].BasePrice" />
+                                    </td>
+                                    <td><input asp-for="Rooms[i].OldElectricity" class="form-control form-control-sm bg-light old-e" readonly /></td>
+                                    <td><input asp-for="Rooms[i].NewElectricity" class="form-control form-control-sm border-warning new-e" type="number" step="0.1" oninput="calculate(this)" /></td>
+                                    <td><input asp-for="Rooms[i].OldWater" class="form-control form-control-sm bg-light old-w" readonly /></td>
+                                    <td><input asp-for="Rooms[i].NewWater" class="form-control form-control-sm border-info new-w" type="number" step="0.1" oninput="calculate(this)" /></td>
+                                    <td class="text-end fw-bold text-danger"><span class="total-val">0</span>đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white text-end p-3">
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow"><i class="fas fa-save me-2"></i>Lưu tất cả</button>
+                </div>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function calculate(el) {
+            const row = el.closest('tr');
+            const oldE = parseFloat(row.querySelector('.old-e').value) || 0;
+            const newE = parseFloat(row.querySelector('.new-e').value) || 0;
+            const oldW = parseFloat(row.querySelector('.old-w').value) || 0;
+            const newW = parseFloat(row.querySelector('.new-w').value) || 0;
+
+            const pE = parseFloat(row.querySelector('.p-elec').value);
+            const pW = parseFloat(row.querySelector('.p-water').value);
+            const pS = parseFloat(row.querySelector('.p-service').value);
+            const pR = parseFloat(row.querySelector('.p-room').value);
+
+            const total = (Math.max(0, newE - oldE) * pE) + (Math.max(0, newW - oldW) * pW) + pS + pR;
+            row.querySelector('.total-val').innerText = total.toLocaleString('vi-VN');
+        }
+        // Chạy tính toán cho toàn bộ khi load trang
+        document.querySelectorAll('.new-e').forEach(calculate);
+    </script>
+}

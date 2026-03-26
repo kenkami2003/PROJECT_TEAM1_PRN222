@@ -102,7 +102,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }
     }
 }
