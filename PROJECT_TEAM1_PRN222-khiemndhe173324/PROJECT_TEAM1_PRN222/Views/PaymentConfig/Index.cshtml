@@ -1,0 +1,98 @@
+@model PROJECT_TEAM1_PRN222.ViewModels.Payment.PaymentReceiverConfigViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Cau hinh nhan tien";
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4" style="border: 1px solid #e6ecff; box-shadow: 0 10px 24px rgba(54, 98, 255, 0.08);">
+            <div class="card-header" style="background: linear-gradient(90deg, #eef3ff 0%, #f7f9ff 100%);">
+                <h5 class="mb-0">Thong tin tai khoan nhan tien</h5>
+            </div>
+            <div class="card-body">
+                @if (TempData["PaymentConfigMessage"] != null)
+                {
+                    <div class="alert alert-success">@TempData["PaymentConfigMessage"]</div>
+                }
+
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                <form method="post" enctype="multipart/form-data" action="~/Admin/PaymentConfig/Save">
+                    <div class="mb-3">
+                        <label class="form-label">Ma ngan hang</label>
+                        <input type="text" name="BankCode" class="form-control" placeholder="VD: VPB, VCB" value="@Model.BankCode" />
+                        <span class="text-danger small" asp-validation-for="BankCode"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">So tai khoan</label>
+                        <input type="text" name="AccountNumber" class="form-control" value="@Model.AccountNumber" />
+                        <span class="text-danger small" asp-validation-for="AccountNumber"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ten chu tai khoan</label>
+                        <input type="text" name="AccountName" class="form-control" value="@Model.AccountName" />
+                        <span class="text-danger small" asp-validation-for="AccountName"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ten ngan hang day du (tuy chon)</label>
+                        <input type="text" name="BranchName" class="form-control" placeholder="Hien thi cho khach thay cho ma ngan hang" value="@Model.BranchName" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Anh QR ngan hang (PNG, JPG...)</label>
+                        <input type="file" name="qrImage" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif" />
+                        <div class="form-text">Khach se thay anh nay tren trang thanh toan. Neu co, uu tien hien anh nay; ma VietQR co so tien van hien them ben duoi.</div>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
+                        <input type="hidden" name="IsActive" value="false" />
+                        <label class="form-check-label">Bat cau hinh nay</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Luu cau hinh</button>
+                </form>
+
+                @if (!string.IsNullOrEmpty(Model.QrImageRelativePath))
+                {
+                    <form method="post" action="~/Admin/PaymentConfig/RemoveQr" class="mt-2" onsubmit="return confirm('Xoa anh QR tren may chu?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Xoa anh QR</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card" style="border: 1px solid #e6ecff; box-shadow: 0 10px 24px rgba(54, 98, 255, 0.08);">
+            <div class="card-header" style="background: linear-gradient(90deg, #eef3ff 0%, #f7f9ff 100%);">
+                <h6 class="mb-0">Xem truoc QR</h6>
+            </div>
+            <div class="card-body text-center">
+                @if (!string.IsNullOrEmpty(Model.QrImageRelativePath))
+                {
+                    <img src="@Model.QrImageRelativePath" alt="QR" class="img-fluid rounded border" style="max-width: 220px;" />
+                }
+                else
+                {
+                    <p class="text-muted small mb-0">Chua tai anh QR.</p>
+                }
+                <hr />
+                <div class="text-start small">
+                    <div><strong>Ngan hang:</strong> @(string.IsNullOrWhiteSpace(Model.BankCode) ? "-" : Model.BankCode)</div>
+                    <div><strong>So TK:</strong> @(string.IsNullOrWhiteSpace(Model.AccountNumber) ? "-" : Model.AccountNumber)</div>
+                    <div><strong>Chu TK:</strong> @(string.IsNullOrWhiteSpace(Model.AccountName) ? "-" : Model.AccountName)</div>
+                    <div><strong>Cap nhat:</strong> @(Model.UpdatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

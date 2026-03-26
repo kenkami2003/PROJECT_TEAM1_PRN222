@@ -1,0 +1,78 @@
+@using BoardingHouseManagement.Models
+@model User
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chỉnh sửa Người dùng";
+    var guardian = ViewBag.Guardian as Guardian;
+    var roles = ViewBag.Roles as List<Role>;
+}
+
+<div class="row">
+    <div class="col-xl">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Chỉnh sửa hồ sơ: @Model.Username</h5>
+            </div>
+            <div class="card-body">
+                <form action="~/Admin/User/Edit/@Model.Id" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="FullName">Họ và tên</label>
+                        <input type="text" class="form-control" id="FullName" name="FullName" value="@Model.FullName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="Email">Email</label>
+                        <input type="text" id="Email" name="Email" class="form-control" value="@Model.Email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="Phone">Số điện thoại</label>
+                        <input type="text" id="Phone" name="Phone" class="form-control" value="@Model.Phone" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="IdentityNumber">CCCD</label>
+                        <input type="text" id="IdentityNumber" name="IdentityNumber" class="form-control" value="@Model.IdentityNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="RoleId">Vai trò</label>
+                        <select id="RoleId" name="RoleId" class="form-select">
+                            @foreach(var role in roles)
+                            {
+                                if(role.Id == Model.RoleId)
+                                {
+                                    <option value="@role.Id" selected>@role.RoleName</option>
+                                }
+                                else
+                                {
+                                    <option value="@role.Id">@role.RoleName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="IsActive" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
+                            <label class="form-check-label" for="IsActive">Kích hoạt tài khoản</label>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <h6 class="mt-4">Thông tin Người bảo hộ</h6>
+                    <div class="mb-3">
+                        <label class="form-label" for="guardianName">Tên người bảo hộ</label>
+                        <input type="text" id="guardianName" name="guardianName" class="form-control" value="@(guardian?.Name)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="guardianPhone">Số điện thoại</label>
+                        <input type="text" id="guardianPhone" name="guardianPhone" class="form-control" value="@(guardian?.Phone)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="guardianRelationship">Mối quan hệ</label>
+                        <input type="text" id="guardianRelationship" name="guardianRelationship" class="form-control" value="@(guardian?.Relationship)" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <a href="~/Admin/User" class="btn btn-outline-secondary">Trở về</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

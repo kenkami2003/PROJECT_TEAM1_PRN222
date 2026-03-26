@@ -1,0 +1,344 @@
+@using BoardingHouseManagement.Models
+@using System.Globalization
+@model BoardingHouseManagement.Services.Payment.CreateOrGetPaymentResultDto
+@{
+    var payment = Model.Payment;
+    var status = payment?.Status;
+    var bankLabel = ViewBag.ReceiverBranchName as string;
+    if (string.IsNullOrWhiteSpace(bankLabel))
+        bankLabel = ViewBag.ReceiverBankCode as string ?? "-";
+    var accNo = ViewBag.ReceiverAccountNumber as string ?? "-";
+    var accName = ViewBag.ReceiverAccountName as string ?? "-";
+    var tenantEmail = ViewBag.TenantEmail as string ?? "-";
+    var staticQrUrl = ViewBag.StaticQrUrl as string;
+    DateTime? expiresLocal = null;
+    if (payment?.ExpiredAt != null)
+        expiresLocal = DateTime.SpecifyKind(payment.ExpiredAt.Value, DateTimeKind.Utc).ToLocalTime();
+}
+
+<style>
+    .invoice-pay-page {
+        --pay-mint: #14b8a6;
+        --pay-mint-dark: #0d9488;
+        --pay-mint-soft: #ecfdf5;
+        --pay-bg: #eef5f3;
+        background: var(--pay-bg);
+        min-height: 70vh;
+        padding-bottom: 3rem;
+    }
+    .invoice-pay-page .pay-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 28px rgba(13, 148, 136, 0.08);
+        padding: 1.75rem 1.5rem;
+        height: 100%;
+        border: 1px solid rgba(20, 184, 166, 0.12);
+    }
+    .invoice-pay-page .pay-title {
+        color: var(--pay-mint-dark);
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .invoice-pay-page .pay-title i { font-size: 1.25rem; }
+    .invoice-pay-page .pay-title-right {
+        color: var(--pay-mint-dark);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+    }
+    .invoice-pay-page label.pay-label {
+        display: block;
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+        font-weight: 500;
+    }
+    .invoice-pay-page .pay-field {
+        width: 100%;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #1e293b;
+        font-size: 0.95rem;
+    }
+    .invoice-pay-page .pay-amount {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--pay-mint-dark);
+        letter-spacing: -0.02em;
+    }
+    .invoice-pay-page .pay-table {
+        font-size: 0.9rem;
+    }
+    .invoice-pay-page .pay-table td { padding: 0.5rem 0; border-color: #f1f5f9; }
+    .invoice-pay-page .pay-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--pay-mint-dark); }
+    .invoice-pay-page .pay-upload-zone {
+        border: 2px dashed rgba(20, 184, 166, 0.35);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        background: var(--pay-mint-soft);
+        margin-top: 1rem;
+    }
+    .invoice-pay-page .pay-upload-zone i {
+        font-size: 2rem;
+        color: var(--pay-mint);
+    }
+    .invoice-pay-page .pay-upload-zone p {
+        margin: 0.5rem 0 0;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+    .invoice-pay-page .qr-frame {
+        border: 3px solid var(--pay-mint);
+        border-radius: 14px;
+        padding: 1rem;
+        background: #fff;
+        display: inline-block;
+        margin: 0 auto;
+    }
+    .invoice-pay-page .qr-frame img { display: block; max-width: 260px; width: 100%; height: auto; }
+    .invoice-pay-page .bank-row {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #334155;
+    }
+    .invoice-pay-page .bank-row strong { color: #0f172a; display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2rem; }
+    .invoice-pay-page .btn-pay-mint {
+        background: linear-gradient(135deg, var(--pay-mint) 0%, var(--pay-mint-dark) 100%);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+    }
+    .invoice-pay-page .btn-pay-mint:hover { color: #fff; filter: brightness(1.05); }
+    .invoice-pay-page .btn-outline-mint {
+        border: 2px solid var(--pay-mint);
+        color: var(--pay-mint-dark);
+        font-weight: 600;
+        border-radius: 10px;
+        background: #fff;
+    }
+    .invoice-pay-page .btn-outline-mint:hover {
+        background: var(--pay-mint-soft);
+        color: var(--pay-mint-dark);
+    }
+    .invoice-pay-page .pay-waiting-banner {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border: 2px solid var(--pay-mint);
+        border-radius: 16px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        box-shadow: 0 8px 28px rgba(13, 148, 136, 0.12);
+    }
+    .invoice-pay-page .pay-waiting-banner h3 {
+        color: var(--pay-mint-dark);
+        font-weight: 800;
+        font-size: 1.35rem;
+        margin: 1rem 0 0.5rem;
+    }
+    .invoice-pay-page .pay-waiting-banner p {
+        color: #0f766e;
+        margin-bottom: 1.25rem;
+        max-width: 32rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .invoice-pay-page .pay-waiting-banner .spinner-border {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-width: 0.25rem;
+        color: var(--pay-mint-dark);
+    }
+</style>
+
+<div class="invoice-pay-page">
+    <div class="container py-4 py-lg-5">
+        @if (payment != null && status == PaymentStatus.WaitingConfirmation)
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="pay-waiting-banner">
+                        <div class="spinner-border" role="status" aria-hidden="true"></div>
+                        <h3>Đang chờ xác nhận</h3>
+                        <p>Chúng tôi đã ghi nhận báo thanh toán của bạn. Chủ trọ sẽ xác nhận giao dịch trong thời gian sớm nhất.</p>
+                        <a class="btn btn-outline-mint btn-lg px-4" href="~/Payment/MyInvoices">Về hóa đơn của tôi</a>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-7">
+                <div class="pay-card">
+                    <h2 class="pay-title">
+                        <i class="bi bi-person-lines-fill"></i>
+                        Thông tin người thanh toán
+                    </h2>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="pay-label">Họ và tên</label>
+                            <div class="pay-field">@Model.TenantName</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="pay-label">Địa chỉ email</label>
+                            <div class="pay-field">@tenantEmail</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="pay-label">Tổng tiền cần thanh toán</label>
+                        <div class="pay-amount">@Model.InvoiceTotalAmount.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) VNĐ</div>
+                    </div>
+
+                    <label class="pay-label mb-2">Chi tiết hóa đơn</label>
+                    <div class="table-responsive mb-3">
+                        <table class="table pay-table mb-0">
+                            <tbody>
+                                <tr><td>Tiền phòng</td><td class="text-end">@Model.RoomAmount.ToString("N0") VNĐ</td></tr>
+                                <tr><td>Tiền điện nước</td><td class="text-end">@Model.UtilityAmount.ToString("N0") VNĐ</td></tr>
+                                <tr><td>Tiền dịch vụ</td><td class="text-end">@Model.ServiceAmount.ToString("N0") VNĐ</td></tr>
+                                <tr><td>Phạt (nếu có)</td><td class="text-end">@Model.PenaltyAmount.ToString("N0") VNĐ</td></tr>
+                                <tr><td>Mã hóa đơn / kỳ</td><td class="text-end">@Model.InvoiceCode · tháng @Model.Month/@Model.Year</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (expiresLocal != null && !Model.InvoicePaid && payment != null && status == PaymentStatus.Pending)
+                    {
+                        <div class="mb-3">
+                            <label class="pay-label">Hạn hoàn tất quét QR (ước tính)</label>
+                            <div class="pay-field">@expiresLocal.Value.ToString("dd/MM/yyyy HH:mm", CultureInfo.GetCultureInfo("vi-VN"))</div>
+                        </div>
+                    }
+
+                    <label class="pay-label">Ghi chú</label>
+                    <textarea class="form-control mb-0" rows="2" readonly style="border-radius:10px;border-color:#e2e8f0;background:#f8fafc;">Vui lòng chuyển khoản đúng số tiền và nội dung bên khung QR. Sau đó bấm nút xác nhận bên dưới.</textarea>
+
+                    <div class="pay-upload-zone">
+                        <i class="bi bi-cloud-upload"></i>
+                        <p><strong>Thanh toán trước khi xác nhận</strong><br />Quét mã VietQR bên phải, kiểm tra số tiền và nội dung chuyển khoản, rồi bấm &quot;Tôi đã thanh toán&quot;.</p>
+                    </div>
+
+                    @if (Model.InvoicePaid)
+                    {
+                        <div class="alert alert-success mt-4 mb-0 rounded-3">Hóa đơn đã được thanh toán. Cảm ơn bạn.</div>
+                    }
+                    else if (payment == null)
+                    {
+                        <div class="alert alert-warning mt-4 mb-0 rounded-3">Không tìm thấy lệnh thanh toán. Vui lòng thử lại sau.</div>
+                    }
+                    else
+                    {
+                        <div class="mt-4 d-flex flex-wrap gap-2">
+                            @if (status == PaymentStatus.Pending)
+                            {
+                                <form action="@Url.Action("CustomerMarkPaid", "Payment", new { paymentId = payment.Id })" method="post" class="flex-grow-1 flex-md-grow-0">
+                                    <button type="submit" class="btn btn-pay-mint w-100">Tôi đã thanh toán</button>
+                                </form>
+                            }
+                        </div>
+                        @if (status == PaymentStatus.WaitingConfirmation)
+                        {
+                            <div class="alert alert-info mt-3 mb-0 rounded-3 border-0" style="background:var(--pay-mint-soft);color:#0f766e;">
+                                Trạng thái: <strong>đang chờ xác nhận</strong>. Bạn có thể quay lại danh sách hóa đơn bất cứ lúc nào.
+                            </div>
+                            <a class="btn btn-outline-mint mt-3" href="~/Payment/MyInvoices">Về hóa đơn của tôi</a>
+                        }
+                        else if (status == PaymentStatus.Rejected)
+                        {
+                            <div class="alert alert-danger mt-3 mb-0 rounded-3">Giao dịch bị từ chối. Vui lòng tạo lại thanh toán từ danh sách hóa đơn.</div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="pay-card text-center">
+                    <h2 class="pay-title-right">Thông tin chuyển khoản</h2>
+
+                    @if (Model.InvoicePaid)
+                    {
+                        <p class="text-muted mb-0">Không cần thanh toán thêm.</p>
+                    }
+                    else if (payment != null)
+                    {
+                        var dynamicQr = payment.QrContent;
+                        var hasVietQr = !string.IsNullOrWhiteSpace(dynamicQr) &&
+                            dynamicQr.StartsWith("http", StringComparison.OrdinalIgnoreCase);
+
+                        @if (!string.IsNullOrWhiteSpace(staticQrUrl))
+                        {
+                            <p class="small text-muted mb-2 text-center">Mã QR ngân hàng</p>
+                            <div class="qr-frame mx-auto">
+                                <img src="@staticQrUrl" alt="QR ngân hàng" />
+                            </div>
+                        }
+                        @if (hasVietQr)
+                        {
+                            @if (!string.IsNullOrWhiteSpace(staticQrUrl))
+                            {
+                                <p class="small text-muted mt-3 mb-2 text-center">Hoặc quét mã có gắn số tiền (VietQR)</p>
+                            }
+                            <div class="qr-frame mx-auto">
+                                <img src="@dynamicQr" alt="VietQR thanh toán" />
+                            </div>
+                        }
+                        @if (string.IsNullOrWhiteSpace(staticQrUrl) && !hasVietQr)
+                        {
+                            <div class="alert alert-warning text-start rounded-3">Chủ trọ chưa cấu hình QR hoặc tài khoản nhận tiền. Vui lòng liên hệ trực tiếp.</div>
+                        }
+
+                        <div class="text-start bank-row">
+                            <div class="mb-2">
+                                <strong>Ngân hàng</strong>
+                                @bankLabel
+                            </div>
+                            <div class="mb-2">
+                                <strong>Số tài khoản</strong>
+                                @accNo
+                            </div>
+                            <div class="mb-2">
+                                <strong>Chủ tài khoản</strong>
+                                @accName
+                            </div>
+                            <div class="mb-2">
+                                <strong>Số tiền</strong>
+                                @payment.Amount.ToString("N0") VNĐ
+                            </div>
+                            <div class="mb-0">
+                                <strong>Nội dung chuyển khoản</strong>
+                                <span class="d-block font-monospace small mt-1" style="word-break:break-all;">@(payment.CheckoutUrl ?? "-")</span>
+                            </div>
+                            <div class="mt-3">
+                                <strong>Trạng thái</strong>
+                                @if (status == null || status == PaymentStatus.Pending)
+                                {
+                                    <span class="badge rounded-pill ms-1" style="background:#fbbf24;color:#422006;">Chờ thanh toán</span>
+                                }
+                                else if (status == PaymentStatus.WaitingConfirmation)
+                                {
+                                    <span class="badge rounded-pill ms-1" style="background:var(--pay-mint);">Chờ xác nhận</span>
+                                }
+                                else if (status == PaymentStatus.Rejected)
+                                {
+                                    <span class="badge bg-danger rounded-pill ms-1">Từ chối</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary rounded-pill ms-1">Khác</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

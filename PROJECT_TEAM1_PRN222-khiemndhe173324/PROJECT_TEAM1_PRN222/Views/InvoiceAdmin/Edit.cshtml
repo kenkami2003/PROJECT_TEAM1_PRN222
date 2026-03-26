@@ -1,0 +1,101 @@
+@model BoardingHouseManagement.Services.Invoice.InvoiceEditDto
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = Model.Id == null ? "Tạo hóa đơn" : "Sửa hóa đơn";
+    var isCreate = Model.Id == null;
+}
+
+<div class="card mb-4">
+    <h5 class="card-header">@(isCreate ? "Tạo hóa đơn theo tháng" : "Sửa hóa đơn")</h5>
+    <div class="card-body">
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <form method="post" action="@(isCreate ? Url.Content("~/Admin/Invoices/Create") : Url.Content("~/Admin/Invoices/Edit/" + Model.Id))">
+            <div class="mb-3">
+                <label class="form-label">Hợp đồng</label>
+                <select name="ContractId" class="form-select" required>
+                    @foreach (var c in Model.Contracts)
+                    {
+                        if (c.Id == Model.ContractId)
+                        {
+                            <option value="@c.Id" selected>@c.Label</option>
+                        }
+                        else
+                        {
+                            <option value="@c.Id">@c.Label</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            @if (!isCreate)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Mã hóa đơn</label>
+                    <input type="text" class="form-control" value="@Model.InvoiceCode" readonly />
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tháng</label>
+                    <input type="number" name="Month" class="form-control" min="1" max="12" value="@Model.Month" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Năm</label>
+                    <input type="number" name="Year" class="form-control" min="2000" max="2100" value="@Model.Year" required />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Tiền phòng (VND)</label>
+                <input type="number" step="0.01" name="RoomAmount" id="RoomAmount" class="form-control amount" value="@Model.RoomAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tiền điện nước (VND)</label>
+                <input type="number" step="0.01" name="UtilityAmount" id="UtilityAmount" class="form-control amount" value="@Model.UtilityAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tiền dịch vụ (VND)</label>
+                <input type="number" step="0.01" name="ServiceAmount" id="ServiceAmount" class="form-control amount" value="@Model.ServiceAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phạt (nếu có)</label>
+                <input type="number" step="0.01" name="PenaltyAmount" id="PenaltyAmount" class="form-control amount" value="@Model.PenaltyAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+            </div>
+
+            <div class="alert alert-secondary">
+                <strong>Tổng (tự cộng):</strong> <span id="totalPreview">0</span> VND
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a href="~/Admin/Invoices" class="btn btn-outline-secondary">Quay lại</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function parseNum(el) {
+            var v = parseFloat(el.value);
+            return isNaN(v) ? 0 : v;
+        }
+        function refresh() {
+            var ids = ['RoomAmount', 'UtilityAmount', 'ServiceAmount', 'PenaltyAmount'];
+            var sum = 0;
+            ids.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) sum += parseNum(el);
+            });
+            var span = document.getElementById('totalPreview');
+            if (span) span.textContent = sum.toLocaleString('vi-VN');
+        }
+        document.querySelectorAll('.amount').forEach(function (el) {
+            el.addEventListener('input', refresh);
+        });
+        refresh();
+    })();
+</script>
