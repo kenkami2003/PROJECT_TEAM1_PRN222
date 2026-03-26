@@ -1,4 +1,4 @@
-﻿using BoardingHouseManagement.Models;
+using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,8 +13,23 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
             _context = context;
         }
 
-        public IActionResult Index()
+        // ===================== DASHBOARD =====================
+        public IActionResult Index(string status)
         {
+            var query = _context.MaintenanceRequests
+    .Include(x => x.Room)
+    .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status) && Enum.TryParse(status, true, out RequestStatus statusEnum))
+            {
+                query = query.Where(x => x.Status == statusEnum);
+            }
+
+            var list = query
+                .OrderByDescending(x => x.CreatedAt)
+                .AsNoTracking()
+                .ToList();
+
             ViewBag.TotalRequests = _context.MaintenanceRequests.Count();
             ViewBag.OpenRequests = _context.MaintenanceRequests.Count(x => x.Status == RequestStatus.Open);
             ViewBag.Processing = _context.MaintenanceRequests.Count(x => x.Status == RequestStatus.Processing);
@@ -22,61 +37,40 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
 
             ViewBag.TotalLogs = _context.AuditLogs.Count();
 
-            return View("~/Views/Dungvthe171161/StaffDashboard/Index.cshtml");
+            return View("~/Views/Dungvthe171161/StaffDashboard/Index.cshtml", list);
         }
-        public IActionResult Checkout(Guid roomId)
-        {
-            var room = _context.Rooms
-                .Include(r => r.Contracts)
-                .FirstOrDefault(r => r.Id == roomId);
 
-            if (room == null) return NotFound();
 
-            // Lấy contract đang active
-            var contract = room.Contracts
-                .FirstOrDefault(c => c.EndDate == null);
-
-            ViewBag.HasContract = contract != null;
-
-            return View("~/Views/Dungvthe171161/StaffDashboard/Checkout.cshtml", room);
-        }
         [HttpPost]
-        public IActionResult CheckoutConfirmed(Guid roomId)
+        public async Task<IActionResult> UpdateStatus(Guid id, string status)
         {
-            var room = _context.Rooms
-                .Include(r => r.Contracts)
-                .FirstOrDefault(r => r.Id == roomId);
+            var request = await _context.MaintenanceRequests.FindAsync(id);
 
-            if (room == null) return NotFound();
-
-            var contract = room.Contracts
-                .FirstOrDefault(c => c.EndDate == null);
-
-            // ❗ Không có người thuê → không cho checkout
-            if (contract == null)
+            if (request == null)
             {
-                return BadRequest("Phòng không có người thuê");
+                return NotFound();
             }
 
-            // ✅ Kết thúc hợp đồng
-            contract.EndDate = DateTime.Now;
-
-            // ✅ Cập nhật trạng thái phòng
-            room.Status = RoomStatus.Available;
-
-            // ✅ Ghi log (không dùng UserId để tránh lỗi)
-            _context.AuditLogs.Add(new AuditLog
+            // FIX CỨNG - KHÔNG BAO GIỜ FAIL
+            switch (status)
             {
-                UserId = Guid.NewGuid(), // fix tạm
-                Action = "CHECKOUT",
-                Details = $"Check-out phòng {room.RoomNumber}",
-                Timestamp = DateTime.Now
-            });
+                case "Processing":
+                    request.Status = RequestStatus.Processing;
+                    break;
 
-            _context.SaveChanges();
+                case "Fixed":
+                    request.Status = RequestStatus.Fixed;
+                    break;
 
-            // 🔥 QUAY VỀ DASHBOARD
+                default:
+                    request.Status = RequestStatus.Open;
+                    break;
+            }
+
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
         }
+
     }
 }

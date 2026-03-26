@@ -1,4 +1,4 @@
-﻿using BoardingHouseManagement.Models;
+using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
@@ -33,7 +33,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
 
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

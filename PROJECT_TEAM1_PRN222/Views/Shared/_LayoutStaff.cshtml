@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en"
       class="light-style layout-menu-fixed"
       dir="ltr"
@@ -9,13 +9,18 @@
     <meta charset="utf-8" />
     <title>Staff Dashboard</title>
 
-    <link rel="stylesheet" href="/Admin/vendor/fonts/boxicons.css" />
-    <link rel="stylesheet" href="/Admin/vendor/css/core.css" />
-    <link rel="stylesheet" href="/Admin/vendor/css/theme-default.css" />
-    <link rel="stylesheet" href="/Admin/css/demo.css" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/Admin/vendor/fonts/boxicons.css" />
+    <link rel="stylesheet" href="~/Admin/vendor/css/core.css" />
+    <link rel="stylesheet" href="~/Admin/vendor/css/theme-default.css" />
+    <link rel="stylesheet" href="~/Admin/css/demo.css" />
 
-    <script src="/Admin/vendor/js/helpers.js"></script>
-    <script src="/Admin/js/config.js"></script>
+    <!-- CONFIG -->
+    <script src="~/Admin/vendor/js/helpers.js"></script>
+    <script src="~/Admin/js/config.js"></script>
+
+    <!-- OPTIONAL CSS -->
+    @RenderSection("PageStyles", required: false)
 </head>
 
 <body>
@@ -27,29 +32,29 @@
             <aside class="layout-menu menu-vertical menu bg-menu-theme">
 
                 <div class="app-brand demo">
-                    <a href="#" onclick="loadPage('/StaffDashboard', event)" class="app-brand-link">
+                    <a asp-controller="StaffDashboard" asp-action="Index" class="app-brand-link">
                         <span class="fw-bold">Staff</span>
                     </a>
                 </div>
 
                 <ul class="menu-inner py-1">
 
-                    <li class="menu-item active">
-                        <a href="#" onclick="loadPage('/StaffDashboard', event)" class="menu-link">
+                    <li class="menu-item">
+                        <a asp-controller="StaffDashboard" asp-action="Index" class="menu-link">
                             <i class="bx bx-home-circle"></i>
                             <div>Dashboard</div>
                         </a>
                     </li>
 
                     <li class="menu-item">
-                        <a href="#" onclick="loadPage('/MaintenanceRequests', event)" class="menu-link">
+                        <a asp-controller="MaintenanceRequest" asp-action="Index" class="menu-link">
                             <i class="bx bx-wrench"></i>
                             <div>Yêu cầu bảo trì</div>
                         </a>
                     </li>
 
                     <li class="menu-item">
-                        <a href="#" onclick="loadPage('/AuditLogs', event)" class="menu-link">
+                        <a asp-controller="AuditLogs" asp-action="Index" class="menu-link">
                             <i class="bx bx-list-ul"></i>
                             <div>Nhật ký</div>
                         </a>
@@ -65,15 +70,15 @@
                 <!-- NAVBAR -->
                 <nav class="layout-navbar navbar">
                     <div class="ms-auto me-3">
-                        <a asp-controller="Account" asp-action="Logout" class="btn btn-danger btn-sm">Logout</a>
+                        <a asp-controller="Account" asp-action="Logout" class="btn btn-danger btn-sm">
+                            Logout
+                        </a>
                     </div>
                 </nav>
 
                 <!-- CONTENT -->
                 <div class="container-xxl p-4">
-                    <div id="mainContent">
-                        @RenderBody()
-                    </div>
+                    @RenderBody()
                 </div>
 
             </div>
@@ -81,30 +86,45 @@
         </div>
     </div>
 
-    <script src="/Admin/vendor/libs/jquery/jquery.js"></script>
-    <script src="/Admin/vendor/js/bootstrap.js"></script>
+    <!-- CORE JS -->
+    <script src="~/Admin/vendor/libs/jquery/jquery.js"></script>
+    <script src="~/Admin/vendor/js/bootstrap.js"></script>
+    <script src="~/Admin/js/main.js"></script>
 
+    <!-- MENU ACTIVE SCRIPT -->
     <script>
-        function loadPage(url, e) {
-            if (e) e.preventDefault();
+        document.addEventListener("DOMContentLoaded", function () {
+            var currentPath = window.location.pathname.toLowerCase();
+            var menuLinks = document.querySelectorAll('.layout-menu .menu-link');
 
-            fetch(url)
-                .then(res => res.text())
-                .then(html => {
+            menuLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (href && href.toLowerCase() === currentPath) {
 
-                    let parser = new DOMParser();
-                    let doc = parser.parseFromString(html, 'text/html');
+                    document.querySelectorAll('.layout-menu .menu-item.active')
+                        .forEach(el => el.classList.remove('active'));
 
-                    let content = doc.querySelector(".container-xxl") || doc.body;
+                    var parentLi = link.closest('.menu-item');
+                    if (parentLi) parentLi.classList.add('active');
+                }
+            });
+        });
 
-                    document.getElementById("mainContent").innerHTML = content.innerHTML;
-
-                    // active menu
-                    document.querySelectorAll('.menu-item').forEach(x => x.classList.remove('active'));
-                    if (e) e.currentTarget.closest('.menu-item').classList.add('active');
-                });
-        }
     </script>
+    <style>
+        .layout-page {
+            position: relative;
+            z-index: 10;
+        }
+
+        .layout-overlay {
+            display: none !important;
+        }
+    </style>
+    
+    <!-- 🔥 QUAN TRỌNG NHẤT: FIX SECTION -->
+    @RenderSection("PageScripts", required: false)
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>

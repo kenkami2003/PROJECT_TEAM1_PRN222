@@ -1,170 +1,155 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using BoardingHouseManagement.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
+namespace PROJECT_TEAM1_PRN222.Controllers
 {
-    public class MaintenanceRequestsController : Controller
+    public class MaintenanceRequestController : Controller
     {
         private readonly AppDbContext _context;
 
-        public MaintenanceRequestsController(AppDbContext context)
+        public MaintenanceRequestController(AppDbContext context)
         {
             _context = context;
         }
 
-        // LIST
-        public IActionResult Index(string status)
+        // ===================== LIST =====================
+        public async Task<IActionResult> Index()
         {
-            var query = _context.MaintenanceRequests
-         .Include(x => x.Room)
-         .AsQueryable();
+            var requests = await _context.MaintenanceRequests
+                .Include(x => x.Room)
+                .ToListAsync();
 
-            if (!string.IsNullOrEmpty(status))
-            {
-                var st = Enum.Parse<RequestStatus>(status);
-                query = query.Where(x => x.Status == st);
-            }
-
-            var list = query.OrderByDescending(x => x.CreatedAt).ToList();
-
-            return PartialView("~/Views/Dungvthe171161/MaintenanceRequests/Index.cshtml", list);
+            return View("~/Views/Dungvthe171161/MaintenanceRequest/Index.cshtml", requests);
         }
 
-        // CREATE
+        // ===================== CREATE GET =====================
         public IActionResult Create()
         {
-            // 🔥 1. PROPERTY
-            if (!_context.Properties.Any())
-            {
-                _context.Properties.Add(new Property
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Test Property",
-                    Address = "Hà Nội" // ✅ FIX
-                });
+            ViewBag.Rooms = _context.Rooms.ToList();
 
-                _context.SaveChanges();
+            return View("~/Views/Dungvthe171161/MaintenanceRequest/Create.cshtml");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(MaintenanceRequest request)
+        {
+            // ✅ FIX ĐÚNG
+            if (request.RoomId == Guid.Empty)
+            {
+                ModelState.AddModelError("RoomId", "Vui lòng chọn phòng");
             }
 
-            var property = _context.Properties.First();
-
-            // 🔥 2. BUILDING
-            if (!_context.Buildings.Any())
+            if (!ModelState.IsValid)
             {
-                _context.Buildings.Add(new Building
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Test Building",
-                    PropertyId = property.Id // ✅ FIX
-                });
-
-                _context.SaveChanges();
+                ViewBag.Rooms = _context.Rooms.ToList();
+                return View("~/Views/Dungvthe171161/MaintenanceRequest/Create.cshtml", request);
             }
 
-            var building = _context.Buildings.First();
+            request.Id = Guid.NewGuid();
+            request.TenantId = Guid.NewGuid();
+            request.Status = RequestStatus.Open;
+            request.CreatedAt = DateTime.Now;
 
-            // 🔥 3. ROOM
-            if (!_context.Rooms.Any())
+            if (string.IsNullOrEmpty(request.ImageUrl))
             {
-                _context.Rooms.Add(new Room
-                {
-                    Id = Guid.NewGuid(),
-                    RoomNumber = "Test101",
-                    BuildingId = building.Id, // ✅ FIX
-                    Status = RoomStatus.Available,
-                    Description = "Test room",
-                    BasePrice = 1000000,
-                    DepositAmount = 500000
-                });
+                request.ImageUrl = "";
+            }
 
-                _context.SaveChanges();
+            _context.MaintenanceRequests.Add(request);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var request = await _context.MaintenanceRequests.FindAsync(id);
+
+            if (request == null)
+            {
+                return NotFound();
             }
 
             ViewBag.Rooms = _context.Rooms.ToList();
 
-            return View("~/Views/Dungvthe171161/MaintenanceRequests/Create.cshtml");
+            return View("~/Views/Dungvthe171161/MaintenanceRequest/Edit.cshtml", request);
         }
-
+        // ===================== EDIT POST =====================
         [HttpPost]
-        public IActionResult Create(MaintenanceRequest req)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, MaintenanceRequest request)
         {
-            ModelState.Remove("ImageUrl");
-            ModelState.Remove("Room");
-
-            // 🔥 FIX NULL Description
-            if (string.IsNullOrWhiteSpace(req.Description))
+            if (id != request.Id)
             {
-                req.Description = "Không có mô tả";
+                return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // validate Room
+            if (request.RoomId == Guid.Empty)
             {
-                req.Id = Guid.NewGuid();
-                req.CreatedAt = DateTime.Now;
-                req.Status = RequestStatus.Open;
-                req.TenantId = Guid.NewGuid();
+                ModelState.AddModelError("RoomId", "Vui lòng chọn phòng");
+            }
 
-                req.ImageUrl = "no-image.png";
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Rooms = _context.Rooms.ToList();
+                return View("~/Views/Dungvthe171161/MaintenanceRequest/Edit.cshtml", request);
+            }
 
-                // 🔥 FIX: đảm bảo RoomId có giá trị
-                if (req.RoomId == Guid.Empty)
+            try
+            {
+                var existing = await _context.MaintenanceRequests.FindAsync(id);
+
+                if (existing == null)
                 {
-                    return BadRequest("Room chưa được chọn");
+                    return NotFound();
                 }
 
-                _context.MaintenanceRequests.Add(req);
+                // update field
+                existing.Title = request.Title;
+                existing.Description = request.Description;
+                existing.RoomId = request.RoomId;
+                existing.ImageUrl = request.ImageUrl ?? "";
+                existing.Status = request.Status;
 
-                _context.AuditLogs.Add(new AuditLog
-                {
-                    UserId = req.TenantId,
-                    Action = "CREATE_REQUEST",
-                    Details = $"Tạo yêu cầu: {req.Title}",
-                    Timestamp = DateTime.Now
-                });
-
-                _context.SaveChanges();
-
-                return RedirectToAction("Index", "StaffDashboard");
+                _context.Update(existing);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
             }
 
-            ViewBag.Rooms = _context.Rooms.ToList();
-            return View("~/Views/Dungvthe171161/MaintenanceRequests/Create.cshtml", req);
+            return RedirectToAction("Index");
         }
-        // EDIT (staff xử lý)
-        public IActionResult Edit(Guid id)
+        // ===================== DELETE =====================
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var req = _context.MaintenanceRequests.Find(id);
-            return View("~/Views/Dungvthe171161/MaintenanceRequests/Edit.cshtml",req);
-        }
+            var request = await _context.MaintenanceRequests.FindAsync(id);
 
-        [HttpPost]
-        public IActionResult Edit(MaintenanceRequest req)
-        {
-            var existing = _context.MaintenanceRequests.Find(req.Id);
-
-            if (existing == null)
-                return NotFound();
-
-            // ✅ Chỉ update những field cần
-            existing.Title = req.Title;
-            existing.Description = req.Description;
-            existing.Status = req.Status;
-
-            // ⚠️ GIỮ nguyên Description nếu form không có
-            // existing.Description = req.Description; // chỉ khi form có
-
-            _context.AuditLogs.Add(new AuditLog
+            if (request != null)
             {
-                UserId = existing.TenantId,
-                Action = "UPDATE_REQUEST",
-                Details = $"Cập nhật: {existing.Title} - {existing.Status}",
-                Timestamp = DateTime.Now
-            });
+                _context.MaintenanceRequests.Remove(request);
+                await _context.SaveChangesAsync();
+            }
 
-            _context.SaveChanges();
-
-            return RedirectToAction("Index", "StaffDashboard");
+            return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            var request = await _context.MaintenanceRequests.FindAsync(id);
+
+            if (request != null)
+            {
+                _context.MaintenanceRequests.Remove(request);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index");
+        }
+
     }
 }
