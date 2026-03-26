@@ -130,6 +130,13 @@
                                    class="btn btn-sm btn-outline-warning">
                                     <i class="bx bx-edit"></i> Edit
                                 </a>
+
+                                <a asp-controller="StaffDashboard"
+                                   asp-action="Checkout"
+                                   asp-route-roomId="@item.RoomId"
+                                   class="btn btn-danger">
+                                    Check-out
+                                </a>
                             </td>
 
                         </tr>
