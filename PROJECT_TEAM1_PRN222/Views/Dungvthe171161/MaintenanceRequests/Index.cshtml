@@ -12,7 +12,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="bx bx-wrench me-2"></i>
-            Yêu cầu bảo trì (@Model.Count) 
+            Yêu cầu bảo trì (@Model.Count)
         </h5>
 
         <a href="/MaintenanceRequests/Create" class="btn btn-primary btn-sm">
@@ -55,7 +55,7 @@
                 <tr>
                     <th>Room</th>
                     <th>Title</th>
-                    <th>Description</th> <!-- 🔥 thêm -->
+                    <th>Description</th>
                     <th>Status</th>
                     <th>Time</th>
                     <th></th>
@@ -131,12 +131,12 @@
                                     <i class="bx bx-edit"></i> Edit
                                 </a>
 
-                                <a asp-controller="StaffDashboard"
-                                   asp-action="Checkout"
-                                   asp-route-roomId="@item.RoomId"
-                                   class="btn btn-danger">
-                                    Check-out
-                                </a>
+                                <button class="btn btn-sm btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#checkoutModal"
+                                        onclick="setRoom('@item.RoomId', 'Room @item.Room?.RoomNumber')">
+                                    <i class="bx bx-log-out"></i> Check-out
+                                </button>
                             </td>
 
                         </tr>
@@ -148,3 +148,56 @@
     </div>
 
 </div>
+
+<!-- ✅ CHECKOUT MODAL (CHỈ 1 CÁI DUY NHẤT) -->
+<div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bx bx-error-circle text-danger"></i>
+                    Xác nhận Check-out
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="checkoutText"></p>
+            </div>
+
+            <div class="modal-footer">
+                <form method="post"
+                      asp-controller="StaffDashboard"
+                      asp-action="CheckoutConfirmed">
+
+                    <input type="hidden" name="roomId" id="roomIdInput" />
+
+                    <button type="submit" class="btn btn-danger">
+                        Xác nhận
+                    </button>
+                </form>
+
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Hủy
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ✅ SCRIPT -->
+@section PageScripts {
+    <script>
+        function setRoom(roomId, roomName) {
+            console.log("CLICK OK");
+
+            document.getElementById("roomIdInput").value = roomId;
+
+            document.getElementById("checkoutText").innerHTML =
+                "Bạn có chắc muốn check-out <b>" + roomName + "</b>?";
+        }
+    </script>
+}
+}
