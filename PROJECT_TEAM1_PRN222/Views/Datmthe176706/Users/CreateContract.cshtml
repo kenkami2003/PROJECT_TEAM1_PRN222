@@ -1,0 +1,128 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currentUser = ViewBag.CurrentUser as User;
+    bool isFromReservation = ViewBag.IsFromReservation ?? false;
+    decimal actualDeposit = (decimal)ViewBag.ActualDeposit;
+    var roomAssets = Model.RoomAssets ?? new List<RoomAsset>();
+    var serviceFees = ViewBag.ServiceFees as List<ServiceFee> ?? new List<ServiceFee>();
+
+    string qrUrl = $"https://img.vietqr.io/image/BIDV-5011801614-compact2.jpg?amount={actualDeposit}&addInfo=HOPDONG{Model.RoomNumber}&accountName=MAI%20TIEN%20DAT";
+}
+@model BoardingHouseManagement.Models.Room
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <h2 class="mb-4 text-primary">Ký kết hợp đồng: Phòng @Model.RoomNumber</h2>
+
+            @if (isFromReservation)
+            {
+                <div class="alert alert-success">
+                    <i class="fa fa-check-circle me-2"></i> Đã khấu trừ phí giữ chỗ vào tiền cọc.
+                </div>
+            }
+
+            <form asp-action="SubmitContract" asp-controller="Users" asp-area="Datmthe176706" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="RoomId" value="@Model.Id" />
+                <input type="hidden" name="TenantId" value="@currentUser?.Id" />
+                <input type="hidden" name="ActualDeposit" value="@actualDeposit" />
+
+                <div class="border rounded p-4 mb-4" style="border-style: dashed !important; border-color: #00B98E !important;">
+                    <h5 class="text-secondary border-bottom pb-2">1. Thông tin khách thuê</h5>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <label class="fw-bold text-dark mb-2">Họ tên</label>
+                            <p class="form-control-plaintext border-bottom">@currentUser?.FullName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold text-dark mb-2">CCCD/CMND <span class="text-danger">*</span></label>
+                            <input type="text" name="IdentityNumber" class="form-control" value="@currentUser?.IdentityNumber" required placeholder="Nhập số CCCD/CMND" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border rounded p-4 mb-4" style="border-style: dashed !important; border-color: #00B98E !important;">
+                    <h5 class="text-secondary border-bottom pb-2">2. Tài sản & Phí dịch vụ</h5>
+                    <div class="mb-3 mt-3">
+                        <label class="fw-bold text-dark mb-2">Tài sản hiện có:</label>
+                        <ul class="small text-muted mt-2">
+                            @if (roomAssets.Any())
+                            {
+                                foreach (var a in roomAssets)
+                                {
+                                    <li>@a.AssetCategory?.Name (SL: @a.Quantity) - Tình trạng: @a.Condition</li>
+                                }
+                            }
+                            else
+                            {
+                                <li>Không có tài sản đính kèm</li>
+                            }
+                        </ul>
+                    </div>
+                    <div>
+                        <label class="fw-bold text-dark mb-2">Phí dịch vụ hàng tháng:</label>
+                        <table class="table table-sm small mt-2">
+                            @foreach (var fee in serviceFees)
+                            {
+                                <tr>
+                                    <td>@fee.Name</td>
+                                    <td class="text-end fw-bold">@fee.Price.ToString("N0") / @fee.Unit</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+
+                <div class="border rounded p-4 mb-4" style="border-style: dashed !important; border-color: #00B98E !important;">
+                    <h5 class="text-secondary border-bottom pb-2">3. Xác nhận thanh toán</h5>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label fw-bold text-dark mb-2">Ngày bắt đầu ở</label>
+                        <input type="date" name="StartDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark mb-2">Ảnh minh chứng chuyển khoản (Ảnh chụp màn hình)</label>
+                        <input type="file" name="ContractProof" class="form-control" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow mt-3">XÁC NHẬN KÝ HỢP ĐỒNG & THANH TOÁN</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-5 text-center">
+            <div class="sticky-top" style="top: 20px;">
+                <div class="card shadow-sm border-primary">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0 text-white">THANH TOÁN TIỀN CỌC</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src="@qrUrl" class="img-fluid rounded mb-3" style="max-height: 300px;" alt="QR Code">
+                        <div class="bg-light p-3 rounded text-start">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Giá thuê:</span>
+                                <span class="fw-bold">@Model.BasePrice.ToString("N0") VNĐ</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tiền cọc niêm yết:</span>
+                                <span>@Model.DepositAmount.ToString("N0") VNĐ</span>
+                            </div>
+                            @if (isFromReservation)
+                            {
+                                <div class="d-flex justify-content-between text-success mb-2">
+                                    <span>Khấu trừ giữ chỗ:</span>
+                                    <span>- @((Model.DepositAmount - actualDeposit).ToString("N0")) VNĐ</span>
+                                </div>
+                            }
+                            <hr>
+                            <div class="d-flex justify-content-between text-danger fs-5 fw-bold">
+                                <span>CẦN CHUYỂN:</span>
+                                <span>@actualDeposit.ToString("N0") VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@ namespace BoardingHouseManagement.Models
         public Guid BuildingId { get; set; }
 
         [Required, MaxLength(20)]
-        public string RoomNumber { get; set; }
+        public string? RoomNumber { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal BasePrice { get; set; }
@@ -29,8 +29,10 @@ namespace BoardingHouseManagement.Models
         [MaxLength(500)]
         public string Description { get; set; }
 
-        public Building Building { get; set; }
-        public ICollection<RoomAsset> RoomAssets { get; set; }
-        public ICollection<Contract> Contracts { get; set; }
+        public virtual ICollection<UtilityReading> UtilityReadings { get; set; } = new List<UtilityReading>();
+
+        public Building? Building { get; set; }
+        public ICollection<RoomAsset>? RoomAssets { get; set; }
+        public ICollection<Contract>? Contracts { get; set; }
     }
 }

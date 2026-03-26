@@ -1,0 +1,64 @@
+﻿@model BoardingHouseManagement.Models.Building
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Thêm Dãy Trọ";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-layer-group me-2"></i>Thêm Dãy Trọ Mới
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="PropertyId" class="form-label fw-bold text-dark">Thuộc khu trọ</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-city"></i></span>
+                                <select asp-for="PropertyId"
+                                        asp-items="@(new SelectList(ViewBag.Properties, "Id", "Name"))"
+                                        class="form-select border-primary-subtle">
+                                    <option value="">-- Chọn khu trọ --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="PropertyId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold text-dark">Tên dãy trọ</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-tag"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="Ví dụ: Dãy A, Tầng 1..." />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus-circle me-1"></i> Tạo dãy trọ
+                            </button>
+                            <a asp-action="Index" class="btn btn-link btn-sm text-secondary text-decoration-none text-center">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Quan trọng: Thêm cái này để báo lỗi ngay tại trình duyệt mà không cần load lại trang *@
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

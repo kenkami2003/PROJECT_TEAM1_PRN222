@@ -1,0 +1,210 @@
+﻿@model BoardingHouseManagement.Models.Reservation
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản Lý Hợp Đồng";
+}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="py-3 mb-4"><span class="text-muted fw-light">Quản lý /</span> Chi tiết giữ chỗ</h4>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7 col-md-12">
+            <div class="nav-align-top nav-tabs-shadow mb-4">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#tab-general">
+                            <i class="bx bx-info-circle me-1"></i> Thông tin chung
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-guest">
+                            <i class="bx bx-user me-1"></i> Khách hàng
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-room">
+                            <i class="bx bx-home me-1"></i> Phòng & Tòa nhà
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-general" role="tabpanel">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small">Mã giữ chỗ</label>
+                                <span class="fw-bold text-primary">#@Model.Id.ToString().Substring(0, 8).ToUpper()</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small">Trạng thái hệ thống</label>
+                                @switch (Model.Status)
+                                {
+                                    case ReservationStatus.Pending:
+                                        <span class="badge bg-label-warning">Chờ thanh toán</span>
+                                        break;
+                                    case ReservationStatus.Confirmed:
+                                        <span class="badge bg-label-success">Đã xác nhận tiền</span>
+                                        break;
+                                    case ReservationStatus.Cancelled:
+                                        <span class="badge bg-label-danger">Đã hủy</span>
+                                        break;
+                                }
+                                @if (Model.IsConvertedToContract)
+                                {
+                                    <span class="badge bg-success ms-1"><i class="bx bx-check"></i> Đã lập HĐ</span>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small">Ngày khởi tạo</label>
+                                <span>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small">Hạn chót giữ chỗ</label>
+                                <span class="text-danger fw-bold">@Model.ExpiryDate.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div class="col-12">
+                                <label class="text-muted d-block small">Phí giữ chỗ</label>
+                                <h4 class="text-primary mb-0">@Model.ReservationFee.ToString("N0") VNĐ</h4>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <hr />
+                                <h6><i class="bx bx-screenshot me-1"></i> Minh chứng thanh toán</h6>
+                                @if (!string.IsNullOrEmpty(Model.PaymentProofImage))
+                                {
+                                    <div class="bg-light p-3 rounded text-center">
+                                        <a href="~/uploads/proofs/@Model.PaymentProofImage" target="_blank">
+                                            <img src="~/uploads/proofs/@Model.PaymentProofImage" class="img-thumbnail shadow-sm" style="max-height: 300px;" />
+                                        </a>
+                                        <p class="small text-muted mt-2 mb-0 italic">* Click vào ảnh để xem kích thước lớn</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-secondary mb-0">
+                                        <i class="bx bx-info-circle me-1"></i> Khách hàng chưa tải lên ảnh minh chứng chuyển khoản.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-guest" role="tabpanel">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar avatar-md me-3">
+                                <span class="avatar-initial rounded-circle bg-label-primary">
+                                    @Model.Guest?.FullName?.Substring(0, 1).ToUpper()
+                                </span>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">@Model.Guest?.FullName</h5>
+                                <small class="text-muted">ID khách hàng: @Model.GuestId</small>
+                            </div>
+                        </div>
+                        <div class="row shadow-none border rounded p-3">
+                            <div class="col-sm-6 mb-3">
+                                <small class="text-muted d-block">Email</small>
+                                <strong>@Model.Guest?.Email</strong>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <small class="text-muted d-block">Số điện thoại</small>
+                                <strong>@Model.Guest?.Phone</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Số CCCD</small>
+                                <strong>@Model.Guest?.IdentityNumber</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-room" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-md-6 border-end">
+                                <h6 class="text-primary"><i class="bx bx-home-circle me-1"></i> Thông tin phòng</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><strong>Số phòng:</strong> @Model.Room?.RoomNumber</li>
+                                    <li class="mb-2"><strong>Giá thuê:</strong> @Model.Room?.BasePrice.ToString("N0") VNĐ</li>
+                                    <li><strong>Trạng thái phòng:</strong> @Model.Room?.Status</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary"><i class="bx bx-building me-1"></i> Thông tin tòa nhà</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><strong>Tòa nhà:</strong> @Model.Room?.Building?.Name</li>
+                                    <li><strong>Mã tài sản:</strong> @Model.Room?.Building?.PropertyId</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <a asp-action="ReservationList" class="btn btn-label-secondary">
+                    <i class="bx bx-chevron-left me-1"></i> Quay lại
+                </a>
+
+                <div class="d-flex gap-2">
+                    @if (Model.Status == ReservationStatus.Pending && !string.IsNullOrEmpty(Model.PaymentProofImage))
+                    {
+                        <form asp-action="ConfirmReservation" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success">
+                                <i class="bx bx-check-circle me-1"></i> Xác nhận đã nhận tiền
+                            </button>
+                        </form>
+                    }
+
+                    @if (Model.Status == ReservationStatus.Confirmed && !Model.IsConvertedToContract)
+                    {
+                        <a asp-controller="Contracts" asp-action="Create" asp-route-reservationId="@Model.Id" class="btn btn-primary">
+                            <i class="bx bx-file me-1"></i> Lập hợp đồng chính thức
+                        </a>
+                    }
+
+                    @if (Model.Status != ReservationStatus.Cancelled && !Model.IsConvertedToContract)
+                    {
+                        <form asp-action="CancelReservation" method="post" onsubmit="return confirm('Xác nhận hủy giữ chỗ này?')">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-outline-danger">Hủy đặt</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5 col-md-12">
+            <div class="card bg-lighter shadow-none border-0 mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Quy trình xử lý</h6>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="badge bg-label-primary p-2 me-3 rounded"><i class="bx bx-time"></i></div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 fw-bold">1. Chờ thanh toán</p>
+                            <small class="text-muted">Khách có 24h để gửi minh chứng.</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="badge bg-label-success p-2 me-3 rounded"><i class="bx bx-check"></i></div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 fw-bold">2. Xác nhận tiền</p>
+                            <small class="text-muted">Admin kiểm tra bank và nhấn xác nhận.</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <div class="badge bg-label-info p-2 me-3 rounded"><i class="bx bx-file"></i></div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 fw-bold">3. Lập hợp đồng</p>
+                            <small class="text-muted">Chuyển thông tin giữ chỗ sang Hợp đồng thuê.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <h6 class="alert-heading fw-bold mb-1">Ghi chú cho Admin:</h6>
+                <p class="mb-0 small">Hết ngày <strong>@Model.ExpiryDate.ToString("dd/MM/yyyy")</strong>, nếu chưa có hợp đồng, hệ thống sẽ tự dọn dẹp.</p>
+            </div>
+        </div>
+    </div>
+</div>

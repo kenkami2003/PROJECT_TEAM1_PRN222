@@ -17,6 +17,6 @@ namespace BoardingHouseManagement.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal DefaultCompensationPrice { get; set; }
 
-        public ICollection<RoomAsset> RoomAssets { get; set; }
+        public ICollection<RoomAsset>? RoomAssets { get; set; }
     }
 }
