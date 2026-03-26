@@ -12,7 +12,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="bx bx-wrench me-2"></i>
-            Maintenance Requests (@Model.Count)
+            Yêu cầu bảo trì (@Model.Count) 
         </h5>
 
         <a href="/MaintenanceRequests/Create" class="btn btn-primary btn-sm">
@@ -20,9 +20,10 @@
         </a>
     </div>
 
-    <!-- FILTER (ĐÚNG CHỖ) -->
+    <!-- FILTER -->
     <div class="card-body pb-0">
         <div class="mb-3">
+
             <a href="/MaintenanceRequests"
                class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-primary" : "btn-outline-secondary")">
                 All
@@ -42,16 +43,19 @@
                class="btn btn-sm @(currentStatus == "Fixed" ? "btn-success" : "btn-outline-success")">
                 Fixed
             </a>
+
         </div>
     </div>
 
     <!-- TABLE -->
     <div class="table-responsive text-nowrap">
         <table class="table table-hover align-middle">
+
             <thead class="table-light">
                 <tr>
                     <th>Room</th>
                     <th>Title</th>
+                    <th>Description</th> <!-- 🔥 thêm -->
                     <th>Status</th>
                     <th>Time</th>
                     <th></th>
@@ -62,7 +66,7 @@
                 @if (Model.Count == 0)
                 {
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">
+                        <td colspan="6" class="text-center text-muted py-4">
                             <i class="bx bx-inbox fs-2"></i>
                             <div>No requests found</div>
                         </td>
@@ -73,16 +77,33 @@
                     @foreach (var item in Model)
                     {
                         <tr>
+
+                            <!-- ROOM -->
                             <td>
                                 <span class="badge bg-info">
                                     Room @item.Room?.RoomNumber
                                 </span>
                             </td>
 
-                            <td class="fw-semibold">@item.Title</td>
+                            <!-- TITLE -->
+                            <td class="fw-semibold">
+                                @item.Title
+                            </td>
 
+                            <!-- DESCRIPTION -->
+                            <td style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                                title="@item.Description">
+
+                                @(string.IsNullOrEmpty(item.Description)
+                                                        ? "-"
+                                                        : (item.Description.Length > 40
+                                                        ? item.Description.Substring(0, 40) + "..."
+                                                        : item.Description))
+                    </td>
+
+                            <!-- STATUS -->
                             <td>
-                                @if (item.Status == RequestStatus.Open)
+                        @if (item.Status == RequestStatus.Open)
                                 {
                                     <span class="badge bg-secondary">Open</span>
                                 }
@@ -96,22 +117,26 @@
                                 }
                             </td>
 
+                            <!-- TIME -->
                             <td>
                                 <span class="text-muted">
                                     @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                                 </span>
                             </td>
 
+                            <!-- ACTION -->
                             <td>
                                 <a href="/MaintenanceRequests/Edit/@item.Id"
                                    class="btn btn-sm btn-outline-warning">
                                     <i class="bx bx-edit"></i> Edit
                                 </a>
                             </td>
+
                         </tr>
                     }
                 }
             </tbody>
+
         </table>
     </div>
 

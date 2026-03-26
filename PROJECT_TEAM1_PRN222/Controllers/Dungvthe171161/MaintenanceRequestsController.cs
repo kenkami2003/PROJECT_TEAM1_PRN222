@@ -28,7 +28,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
 
             var list = query.OrderByDescending(x => x.CreatedAt).ToList();
 
-            return View("~/Views/Dungvthe171161/MaintenanceRequests/Index.cshtml", list);
+            return PartialView("~/Views/Dungvthe171161/MaintenanceRequests/Index.cshtml", list);
         }
 
         // CREATE
@@ -92,6 +92,12 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
             ModelState.Remove("ImageUrl");
             ModelState.Remove("Room");
 
+            // 🔥 FIX NULL Description
+            if (string.IsNullOrWhiteSpace(req.Description))
+            {
+                req.Description = "Không có mô tả";
+            }
+
             if (ModelState.IsValid)
             {
                 req.Id = Guid.NewGuid();
@@ -100,6 +106,12 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
                 req.TenantId = Guid.NewGuid();
 
                 req.ImageUrl = "no-image.png";
+
+                // 🔥 FIX: đảm bảo RoomId có giá trị
+                if (req.RoomId == Guid.Empty)
+                {
+                    return BadRequest("Room chưa được chọn");
+                }
 
                 _context.MaintenanceRequests.Add(req);
 
@@ -113,13 +125,12 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
 
                 _context.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "StaffDashboard");
             }
 
             ViewBag.Rooms = _context.Rooms.ToList();
             return View("~/Views/Dungvthe171161/MaintenanceRequests/Create.cshtml", req);
         }
-
         // EDIT (staff xử lý)
         public IActionResult Edit(Guid id)
         {
@@ -137,6 +148,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
 
             // ✅ Chỉ update những field cần
             existing.Title = req.Title;
+            existing.Description = req.Description;
             existing.Status = req.Status;
 
             // ⚠️ GIỮ nguyên Description nếu form không có
@@ -152,7 +164,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
 
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "StaffDashboard");
         }
     }
 }
