@@ -1,0 +1,53 @@
+@using BoardingHouseManagement.Models
+@model List<BoardingHouseManagement.Services.Payment.TenantInvoicePaymentItemDto>
+
+@{
+    ViewData["Title"] = "Hóa đơn của tôi";
+}
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-4" style="max-width: 700px;">
+            <h2 class="mb-2">Hóa đơn của tôi</h2>
+            <p class="text-muted mb-0">Chọn hóa đơn để vào trang thanh toán.</p>
+        </div>
+
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="alert alert-secondary">Bạn chưa có hóa đơn nào.</div>
+        }
+        else
+        {
+            <div class="table-responsive bg-light rounded p-3">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mã hóa đơn</th>
+                            <th>Kỳ</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.InvoiceCode</td>
+                                <td>@item.Month/@item.Year</td>
+                                <td>@item.TotalAmount.ToString("N0")</td>
+                                <td>
+                                    @(item.InvoiceStatus == InvoiceStatus.Paid ? "Đã thanh toán" : "Chưa thanh toán")
+                                </td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-primary" href="~/Payment/Invoice/@item.InvoiceId">Thanh toán</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
