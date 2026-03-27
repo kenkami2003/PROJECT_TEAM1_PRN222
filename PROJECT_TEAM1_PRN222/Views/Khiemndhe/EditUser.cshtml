@@ -5,6 +5,7 @@
     ViewData["Title"] = "Chỉnh sửa Người dùng";
     var guardian = ViewBag.Guardian as Guardian;
     var roles = ViewBag.Roles as List<Role>;
+    var activeContract = ViewBag.ActiveContract as Contract;
 }
 
 <div class="row">
@@ -68,6 +69,35 @@
                         <label class="form-label" for="guardianRelationship">Mối quan hệ</label>
                         <input type="text" id="guardianRelationship" name="guardianRelationship" class="form-control" value="@(guardian?.Relationship)" />
                     </div>
+
+                    @if (activeContract != null && activeContract.Room != null)
+                    {
+                        <hr />
+                        <h6 class="mt-4 text-info"><i class="bx bx-home-heart me-1"></i> Thông tin phòng đang thuê</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Tòa nhà</label>
+                                <input type="text" class="form-control" value="@activeContract.Room.Building?.Name" readonly />
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Số phòng</label>
+                                <input type="text" class="form-control" value="@activeContract.Room.RoomNumber" readonly />
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Giá thuê cơ bản /tháng</label>
+                                <input type="text" class="form-control" value="@activeContract.Room.BasePrice.ToString("N0") VNĐ" readonly />
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label">Tiền cọc</label>
+                                <input type="text" class="form-control" value="@activeContract.ActualDeposit.ToString("N0") VNĐ" readonly />
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label">Tài sản phòng</label>
+                                <textarea class="form-control" rows="2" readonly>@(activeContract.Room.RoomAssets != null && activeContract.Room.RoomAssets.Any() ? string.Join(", ", activeContract.Room.RoomAssets.Select(a => $"{a.AssetCategory?.Name} (x{a.Quantity})")) : "Không có tài sản nổi bật")</textarea>
+                            </div>
+                        </div>
+                        <br/>
+                    }
 
                     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                     <a href="~/Admin/User" class="btn btn-outline-secondary">Trở về</a>

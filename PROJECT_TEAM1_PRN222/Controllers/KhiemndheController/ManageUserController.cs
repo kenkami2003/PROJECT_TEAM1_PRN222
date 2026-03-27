@@ -29,15 +29,37 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
 
         [HttpGet("")]
         [HttpGet("Index")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
             var currentUserRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
             if (currentUserRole?.ToLower() != "admin") return RedirectToAction("Index", "Home");
 
-            var users = await _context.Users.Include(u => u.Role).ToListAsync();
+            var usersQuery = _context.Users.Include(u => u.Role).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                var lowerSearch = searchString.ToLower();
+                usersQuery = usersQuery.Where(u => 
+                    (u.FullName != null && u.FullName.ToLower().Contains(lowerSearch)) ||
+                    (u.Username != null && u.Username.ToLower().Contains(lowerSearch)) ||
+                    (u.Email != null && u.Email.ToLower().Contains(lowerSearch)) ||
+                    (u.Phone != null && u.Phone.Contains(searchString))
+                );
+            }
+
+            var users = await usersQuery.ToListAsync();
             var guardians = await _context.Guardians.ToDictionaryAsync(g => g.TenantId);
+            
+            var activeContracts = await _context.Contracts
+                .Include(c => c.Room)
+                .ThenInclude(r => r.Building)
+                .Where(c => c.IsActive)
+                .ToDictionaryAsync(c => c.TenantId);
 
             ViewBag.Guardians = guardians;
+            ViewBag.ActiveContracts = activeContracts;
+            ViewBag.SearchString = searchString;
+
             return View("~/Views/Khiemndhe/ListUser.cshtml", users);
         }
 
@@ -51,8 +73,17 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
             if (user == null) return NotFound();
 
             var guardian = await _context.Guardians.FirstOrDefaultAsync(g => g.TenantId == id);
+            
+            var activeContract = await _context.Contracts
+                .Include(c => c.Room)
+                .ThenInclude(r => r.Building)
+                .Include(c => c.Room.RoomAssets)
+                .ThenInclude(a => a.AssetCategory)
+                .FirstOrDefaultAsync(c => c.TenantId == id && c.IsActive);
+
             ViewBag.Guardian = guardian;
             ViewBag.Roles = await _context.Roles.ToListAsync();
+            ViewBag.ActiveContract = activeContract;
 
             return View("~/Views/Khiemndhe/EditUser.cshtml", user);
         }

@@ -4,16 +4,24 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "Quản lý Người dùng";
     var guardians = ViewBag.Guardians as Dictionary<Guid, Guardian>;
+    var activeContracts = ViewBag.ActiveContracts as Dictionary<Guid, Contract>;
 }
 
 <div class="card">
-    <h5 class="card-header">Danh sách Người dùng</h5>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0">Danh sách Người dùng</h5>
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchString" class="form-control me-2" placeholder="Tìm bằng tên, email, sđt..." value="@ViewBag.SearchString" />
+            <button type="submit" class="btn btn-primary d-flex align-items-center"><i class="bx bx-search me-1"></i> Tìm</button>
+        </form>
+    </div>
     <div class="table-responsive text-nowrap">
         <table class="table">
             <thead>
                 <tr>
                     <th>Username</th>
                     <th>Họ & Tên</th>
+                    <th>Phòng đang thuê</th>
                     <th>Email</th>
                     <th>Vai trò</th>
                     <th>Trạng thái</th>
@@ -27,6 +35,17 @@
                     <tr>
                         <td><strong>@item.Username</strong></td>
                         <td>@item.FullName</td>
+                        <td>
+                            @if(activeContracts != null && activeContracts.ContainsKey(item.Id))
+                            {
+                                var contract = activeContracts[item.Id];
+                                <span class="badge bg-label-info">P.@contract.Room?.RoomNumber - @contract.Room?.Building?.Name</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có</span>
+                            }
+                        </td>
                         <td>@item.Email</td>
                         <td><span class="badge @(item.Role.RoleName == "Admin" ? "bg-label-primary" : "bg-label-success") me-1">@item.Role.RoleName</span></td>
                         <td>
