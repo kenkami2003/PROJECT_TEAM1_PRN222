@@ -1,12 +1,13 @@
-﻿using BoardingHouseManagement.Models;
+using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PROJECT_TEAM1_PRN222.Services;
+using System.Security.Claims;
 
 namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 {
-    [Area("Datmthe176706")]
+ 
     public class UsersController : Controller
     {
         private readonly AppDbContext _context;
@@ -25,6 +26,19 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             return View("~/Views/Datmthe176706/Users/Index.cshtml", model);
         }
 
+        private Guid? GetCurrentUserId()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var idClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (idClaim != null && Guid.TryParse(idClaim.Value, out Guid parsedId))
+                {
+                    return parsedId;
+                }
+            }
+            return null;
+        }
+
 
         //Room detail test
         public async Task<IActionResult> Details(Guid id)
@@ -35,37 +49,43 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 
             if (room == null) return NotFound();
 
-            // --- PHẦN CỦA BẠN (PHẢI MỞ COMMENT RA) ---
-            Guid testUserId = Guid.Parse("C0940C8B-5BEA-4D67-869A-252045133C1E");
+            // 1. Lấy ID người dùng (nếu đã đăng nhập)
+            Guid? testUserId = GetCurrentUserId();
 
-            // Gọi helper để check
-            ViewBag.IsMyReservation = (bool)await ReservationHelper.IsUserReservedRoom(_context, id, testUserId);
+            if (testUserId.HasValue)
+            {
+                ViewBag.HasPendingReservation = await _context.Reservations
+                    .AnyAsync(r => r.RoomId == id && r.GuestId == testUserId.Value && r.Status == ReservationStatus.Pending);
+
+                ViewBag.HasPendingContract = await _context.Contracts
+                    .AnyAsync(c => c.RoomId == id && c.TenantId == testUserId.Value && c.IsActive == false);
+
+                ViewBag.IsMyReservationApproved = await _context.Reservations
+                    .AnyAsync(r => r.RoomId == id && r.GuestId == testUserId.Value && r.Status == ReservationStatus.Confirmed);
+
+                ViewBag.IsMyActiveContract = await _context.Contracts
+                    .AnyAsync(c => c.RoomId == id && c.TenantId == testUserId.Value && c.IsActive == true);
+            }
+            else
+            {
+                ViewBag.HasPendingReservation = false;
+                ViewBag.HasPendingContract = false;
+                ViewBag.IsMyReservationApproved = false;
+                ViewBag.IsMyActiveContract = false;
+            }
+
             ViewBag.CurrentUserId = testUserId;
-            // ----------------------------------------
 
             return View("~/Views/Datmthe176706/Users/DetailRoomTest.cshtml", room);
         }
 
-
         // Reservation
 
-        // Đặt phòng
-        // [Authorize] // Tạm comment để test không cần login
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Reservation(Guid roomId)
         {
-            // --- PHẦN SESSION (TẠM COMMENT) ---
-            // var userIdStr = HttpContext.Session.GetString("UserId");
-            // if (string.IsNullOrEmpty(userIdStr))
-            // {
-            //      return RedirectToAction("Login", "Account", new { area = "Datmthe176706" });
-            // }
-            // var userId = Guid.Parse(userIdStr);
-            // ----------------------------------
-
-            // --- ID GIẢ ĐỂ TEST (Thay bằng 1 ID có thật trong bảng User của bạn) ---
-            Guid userId = Guid.Parse("C0940C8B-5BEA-4D67-869A-252045133C1E");
-            // ----------------------------------------------------------------------
+            Guid userId = GetCurrentUserId() ?? Guid.Empty;
 
             var user = await _context.Users.FindAsync(userId);
 
@@ -79,21 +99,12 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             return View("~/Views/Datmthe176706/Users/Reservation.cshtml", room);
         }
 
-        // [Authorize] // Tạm comment để test
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Thêm tham số IFormFile proofFile để nhận ảnh từ Form
         public async Task<IActionResult> CreateReservation(Reservation reservation, IFormFile? proofFile)
         {
-            // --- PHẦN SESSION (TẠM COMMENT) ---
-            // var userIdStr = HttpContext.Session.GetString("UserId");
-            // if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
-            // reservation.GuestId = Guid.Parse(userIdStr);
-            // ----------------------------------
-
-            // --- ID GIẢ ĐỂ TEST (Trùng với ID ở hàm GET bên trên) ---
-            reservation.GuestId = Guid.Parse("C0940C8B-5BEA-4D67-869A-252045133C1E");
-            // -------------------------------------------------------
+            reservation.GuestId = GetCurrentUserId() ?? Guid.Empty;
 
             if (reservation.RoomId == Guid.Empty)
             {
@@ -160,7 +171,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
                 TempData["Success"] = "Đã gửi yêu cầu giữ chỗ và minh chứng thành công. Vui lòng chờ Admin phê duyệt!";
 
                 // Không đi tới PaymentGuidance nữa, quay về trang danh sách phòng hoặc trang cá nhân
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = reservation.RoomId });
             }
             catch (Exception ex)
             {
@@ -186,10 +197,11 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 
 
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> CreateContract(Guid roomId)
         {
-            Guid testUserId = Guid.Parse("C0940C8B-5BEA-4D67-869A-252045133C1E");
+            Guid testUserId = GetCurrentUserId() ?? Guid.Empty;
 
             var room = await _context.Rooms
                 .Include(r => r.Building)
@@ -222,13 +234,26 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             return View("~/Views/Datmthe176706/Users/CreateContract.cshtml", room);
         }
 
+        [Authorize]
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> SubmitContract(Guid RoomId, Guid TenantId, decimal ActualDeposit, IFormFile ContractProof, DateTime StartDate)
+        public async Task<IActionResult> SubmitContract(Guid RoomId, Guid TenantId, decimal ActualDeposit, IFormFile ContractProof, DateTime StartDate, string IdentityNumber)
         {
+            TenantId = GetCurrentUserId() ?? Guid.Empty;
             if (ContractProof == null || ContractProof.Length == 0)
             {
                 TempData["Error"] = "Vui lòng tải lên ảnh minh chứng.";
                 return RedirectToAction("CreateContract", new { roomId = RoomId });
+            }
+
+            if (!string.IsNullOrEmpty(IdentityNumber))
+            {
+                var user = await _context.Users.FindAsync(TenantId);
+                if (user != null)
+                {
+                    user.IdentityNumber = IdentityNumber;
+                    _context.Users.Update(user);
+                }
             }
 
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ContractProof.FileName);
@@ -265,7 +290,33 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             if (room != null) room.Status = RoomStatus.Reserved;
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", new { id = RoomId });
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyRoom()
+        {
+            var tenantId = GetCurrentUserId() ?? Guid.Empty;
+            
+            var activeContract = await _context.Contracts
+                .Include(c => c.Room)
+                    .ThenInclude(r => r.Building)
+                .Include(c => c.Room)
+                    .ThenInclude(r => r.RoomAssets)
+                        .ThenInclude(ra => ra.AssetCategory)
+                .Include(c => c.Room)
+                    .ThenInclude(r => r.UtilityReadings)
+                .FirstOrDefaultAsync(c => c.TenantId == tenantId && c.IsActive == true);
+
+            if (activeContract == null)
+            {
+                return View("~/Views/Datmthe176706/Users/NoRoom.cshtml");
+            }
+
+            ViewBag.ServiceFees = await _context.ServiceFees.ToListAsync();
+
+            return View("~/Views/Datmthe176706/Users/MyRoom.cshtml", activeContract);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }
 
         public IActionResult Privacy()

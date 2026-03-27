@@ -133,7 +133,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
 
             // Nếu lỗi Validation, load lại danh sách phòng và trả về View Form
             ViewBag.Rooms = await _context.Rooms.Where(r => r.Status == RoomStatus.Available).ToListAsync();
-            return View("~/Areas/Datmthe176706/Views/Admin/CreateShortTerm.cshtml", guest);
+            return View("~/Views/Datmthe176706/Admin/CreateShortTerm.cshtml", guest);
         }
 
         // Hàm hỗ trợ lưu ảnh

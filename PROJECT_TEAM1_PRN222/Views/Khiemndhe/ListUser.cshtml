@@ -1,0 +1,64 @@
+@using BoardingHouseManagement.Models
+@model IEnumerable<User>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Người dùng";
+    var guardians = ViewBag.Guardians as Dictionary<Guid, Guardian>;
+}
+
+<div class="card">
+    <h5 class="card-header">Danh sách Người dùng</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Họ & Tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Người bảo hộ</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach(var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.Username</strong></td>
+                        <td>@item.FullName</td>
+                        <td>@item.Email</td>
+                        <td><span class="badge @(item.Role.RoleName == "Admin" ? "bg-label-primary" : "bg-label-success") me-1">@item.Role.RoleName</span></td>
+                        <td>
+                            @if(item.IsActive){ <span class="badge bg-success">Hoạt động</span> }
+                            else { <span class="badge bg-danger">Khóa</span> }
+                        </td>
+                        <td>
+                            @if(guardians != null && guardians.ContainsKey(item.Id))
+                            {
+                                <span>@guardians[item.Id].Name (@guardians[item.Id].Relationship)</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa cập nhật</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="~/Admin/User/Edit/@item.Id"><i class="bx bx-edit-alt me-1"></i> Edit</a>
+                                    <form action="~/Admin/User/Delete/@item.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Khóa tài khoản này?');"><i class="bx bx-trash me-1"></i> Check out</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

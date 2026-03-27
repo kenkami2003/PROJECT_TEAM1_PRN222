@@ -5,37 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin Dashboard</title>
 
+    <!-- CORE CSS -->
     <link rel="stylesheet" href="~/Admin/vendor/fonts/boxicons.css" />
     <link rel="stylesheet" href="~/Admin/vendor/css/core.css" />
     <link rel="stylesheet" href="~/Admin/vendor/css/theme-default.css" />
 
+    <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="~/Admin/css/demo.css" />
     <link rel="stylesheet" href="~/Admin/css/site.css" />
 
+    <!-- OPTIONAL CSS -->
     @RenderSection("VendorStyles", required: false)
     @RenderSection("PageStyles", required: false)
 
+    <!-- CONFIG -->
     <script src="~/Admin/js/config.js"></script>
 </head>
+
 <body>
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
 
+            <!-- CONTENT -->
             <div class="layout-page">
                 <div class="content-wrapper">
+
                     <div class="container-xxl flex-grow-1 container-p-y">
-
                         @RenderBody()
-
                     </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 
+    <!-- CORE JS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/Admin/vendor/js/bootstrap.js"></script>
     <script src="~/Admin/js/main.js"></script>
+
+    <!-- OPTIONAL SCRIPTS -->
+    @RenderSection("VendorScripts", required: false)
+    @RenderSection("PageScripts", required: false)
+
+    <!-- 🔥 FIX LỖI QUAN TRỌNG -->
+    @RenderSection("Scripts", required: false)
+
 
     @RenderSection("VendorScripts", required: false)
     @RenderSection("PageScripts", required: false)

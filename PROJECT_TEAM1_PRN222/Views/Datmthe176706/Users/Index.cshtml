@@ -1,11 +1,12 @@
-﻿@using BoardingHouseManagement.Models
+@using BoardingHouseManagement.Models
 @model List<Property>;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <title>Makaan - Real Estate HTML Template</title>
+    <title>Trọ FPT - Real Estate HTML Template</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -45,38 +46,40 @@
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
-                <a href="index.html" class="navbar-brand d-flex align-items-center text-center">
+                <a href="~/Datmthe176706/Users" class="navbar-brand d-flex align-items-center text-center">
                     <div class="icon p-2 me-2">
                         <img class="img-fluid" src="~/Users/img/icon-deal.png" alt="Icon" style="width: 30px; height: 30px;">
                     </div>
-                    <h1 class="m-0 text-primary">Makaan</h1>
+                    <h1 class="m-0 text-primary">Trọ FPT</h1>
                 </a>
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto">
-                        <a href="index.html" class="nav-item nav-link active">Home</a>
-                        <a href="about.html" class="nav-item nav-link">About</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Property</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="property-list.html" class="dropdown-item">Property List</a>
-                                <a href="property-type.html" class="dropdown-item">Property Type</a>
-                                <a href="property-agent.html" class="dropdown-item">Property Agent</a>
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle text-primary fw-bold" data-bs-toggle="dropdown" style="display: flex; align-items: center;">
+                                    <i class="fa fa-user me-2"></i>@User.Identity.Name
+                                </a>
+                                <div class="dropdown-menu rounded-0 m-0 shadow border-0">
+                                    <a href="~/Profile" class="dropdown-item py-2"><i class="fa fa-address-card me-2 text-primary"></i>Hồ sơ cá nhân</a>
+                                    <a href="~/Datmthe176706/Users/MyRoom" class="dropdown-item py-2"><i class="fa fa-home me-2 text-warning"></i>Phòng của tôi</a>
+                                    @if (User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
+                                    {
+                                        <a href="~/Admin/Portal" class="dropdown-item py-2"><i class="fa fa-cogs me-2 text-success"></i>Trang quản trị</a>
+                                    }
+                                    <div class="dropdown-divider"></div>
+                                    <a href="~/Profile/Logout" class="dropdown-item py-2 text-danger"><i class="fa fa-sign-out-alt me-2 text-danger"></i>Đăng xuất</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu rounded-0 m-0">
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="404.html" class="dropdown-item">404 Error</a>
-                            </div>
-                        </div>
-                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                        }
+                        else
+                        {
+                            <a href="~/Login/Index" class="nav-item nav-link fw-bold text-primary"><i class="fa fa-sign-in-alt me-1"></i>Đăng nhập</a>
+                        }
                     </div>
-                    <a href="https://htmlcodex.com/downloading/?item=2259" class="btn btn-primary px-3 d-none d-lg-flex">Buy Pro Version</a>
-                </div>
             </nav>
         </div>
         <!-- Navbar End -->
@@ -235,7 +238,7 @@
                                                 <div class="property-item rounded overflow-hidden border shadow-sm">
                                                     @* 1. Click vào hình ảnh để xem chi tiết *@
                                                     <div class="position-relative overflow-hidden">
-                                                        <a asp-action="Details" asp-controller="Users" asp-route-id="@room.Id">
+                                                        <a asp-action="Details" asp-controller="Users" asp-area="Datmthe176706" asp-route-id="@room.Id">
                                                             <img class="img-fluid" src="~/Users/img/property-1.jpg" alt="" style="width: 100%">
                                                         </a>
 
@@ -251,7 +254,7 @@
                                                         <h5 class="text-primary mb-3">@room.BasePrice.ToString("N0") VNĐ</h5>
 
                                                         @* 2. Click vào tiêu đề phòng để xem chi tiết *@
-                                                        <a class="d-block h5 mb-2" asp-action="Details" asp-controller="Users" asp-route-id="@room.Id">
+                                                        <a class="d-block h5 mb-2" asp-action="Details" asp-controller="Users" asp-area="Datmthe176706" asp-route-id="@room.Id">
                                                             Phòng @room.RoomNumber
                                                         </a>
 
@@ -265,7 +268,7 @@
                                                         </small>
                                                         <small class="flex-fill py-2">
                                                             @* Nút xem chi tiết rõ ràng *@
-                                                            <a asp-action="Details" asp-controller="Users" asp-route-id="@room.Id" class="text-primary fw-bold">
+                                                            <a asp-action="Details" asp-controller="Users" asp-area="Datmthe176706" asp-route-id="@room.Id" class="text-primary fw-bold">
                                                                 <i class="fa fa-eye me-1"></i> Chi tiết
                                                             </a>
                                                         </small>

@@ -10,7 +10,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Sneat - Bootstrap 5 HTML Admin Template</title>
+    <title>Quản Lý Trọ FPT</title>
 
     <meta name="description" content="" />
 
@@ -49,14 +49,14 @@
         <div class="layout-container">
             <!-- Menu -->
 
-            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-                <div class="app-brand demo">
-                    <a href="~/" class="app-brand-link">
-                        <span class="app-brand-logo demo">
-                            <!-- SVG Logo could go here -->
-                        </span>
-                        <span class="app-brand-text demo menu-text fw-bolder ms-2">Admin</span>
-                    </a>
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo">
+            <a href="~/Admin/Portal" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <!-- SVG Logo could go here -->
+              </span>
+              <span class="app-brand-text demo menu-text fw-bolder ms-2">Quản Lý Trọ FPT</span>
+            </a>
 
                     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
                         <i class="bx bx-chevron-left bx-sm align-middle"></i>
@@ -65,14 +65,21 @@
 
                 <div class="menu-inner-shadow"></div>
 
-                <ul class="menu-inner py-1">
-                    <!-- Dashboard -->
-                    <li class="menu-item active">
-                        <a href="~/Khiemndhe173324/Portal" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                            <div data-i18n="Analytics">Dashboard</div>
-                        </a>
-                    </li>
+          <ul class="menu-inner py-1">
+            <li class="menu-item">
+              <a href="~/Admin/Portal" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Analytics">Dashboard</div>
+              </a>
+            </li>
+
+            <!-- Quản lý người dùng -->
+            <li class="menu-item">
+                <a href="~/Admin/User" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-user"></i>
+                    <div data-i18n="User Management">Quản lý người dùng</div>
+                </a>
+            </li>
 
                     <li class="menu-header small text-uppercase">
                         <span class="menu-header-text">Pages</span>
@@ -138,7 +145,9 @@
 
                            
                         </ul>
+                    </li>
 
+                    <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-dock-top"></i>
                             <div data-i18n="Pr Settings">Quản lý Hợp đồng</div>
@@ -150,7 +159,7 @@
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="~/Datmthe176706/Reservations/ReservationsList" class="menu-link">
+                                <a href="~/Datmthe176706/Reservations/ReservationList" class="menu-link">
                                     <div data-i18n="Property">Danh sách hợp đồng đặt chỗ</div>
                                 </a>
                             </li>
@@ -226,7 +235,7 @@
                                         <div class="dropdown-divider"></div>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="~/Khiemndhe173324/Account/Logout">
+                                        <a class="dropdown-item" href="~/Profile/Logout">
                                             <i class="bx bx-power-off me-2"></i>
                                             <span class="align-middle">Log Out</span>
                                         </a>
@@ -284,6 +293,89 @@
 
     <!-- Main JS -->
     <script src="~/Admin/assets/js/main.js"></script>
+
+    <!-- Script tự động active menu dựa trên URL hiện tại -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var currentPath = window.location.pathname.toLowerCase();
+            var menuLinks = document.querySelectorAll('.layout-menu .menu-link:not(.menu-toggle)');
+            
+            var bestMatch = null;
+            var bestMatchLength = 0;
+
+            // Tìm link gần giống với URL đang đứng nhất
+            menuLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (href && href !== 'javascript:void(0);' && href !== '#') {
+                    // Cắt bỏ ký tự ~ để match với pathname
+                    var linkPath = href.replace('~', '').toLowerCase();
+                    if (currentPath === '/' && linkPath === '/') {
+                        bestMatch = link;
+                    } else if (linkPath !== '/' && currentPath.includes(linkPath)) {
+                        if (linkPath.length > bestMatchLength) {
+                            bestMatchLength = linkPath.length;
+                            bestMatch = link;
+                        }
+                    }
+                }
+            });
+
+            // Gỡ bỏ tất cả active mặc định (nếu có)
+            document.querySelectorAll('.layout-menu .menu-item.active').forEach(function(el) {
+                el.classList.remove('active');
+            });
+
+            // Gán lại active và open cho đúng thẻ
+            if (bestMatch) {
+                // Thêm active cho chính sub-menu đó
+                var parentLi = bestMatch.closest('.menu-item');
+                if (parentLi) {
+                    parentLi.classList.add('active');
+                }
+
+                // Đi ngược lên dom tree tìm thẻ cha menu-item lớn chứa danh mục đó và mở ra
+                var currentElement = bestMatch;
+                while (currentElement) {
+                    var menuSub = currentElement.closest('.menu-sub');
+                    if (menuSub) {
+                        var parentMenuItem = menuSub.closest('.menu-item'); // Thẻ cha chứa menu-toggle
+                        if (parentMenuItem) {
+                            parentMenuItem.classList.add('active', 'open');
+                        }
+                        currentElement = parentMenuItem; // Tiếp tục đi lên xem còn cha nữa không
+                    } else {
+                        break;
+                    }
+                }
+            } else if (currentPath === '/' || currentPath === '/admin/portal') {
+                // Fallback nếu không match cái nào cả thì gán cho dashboard
+                var dashboardLink = document.querySelector('a[href="~/Admin/Portal"]');
+                if (dashboardLink) {
+                    var item = dashboardLink.closest('.menu-item');
+                    if (item) item.classList.add('active');
+                }
+            }
+
+            // Accordion: Khi mở 1 danh mục chính thì danh mục kia tự gập lại (VD: bấm "Quản lý Hợp đồng" thì gập "Quản lý trọ")
+            var menuToggles = document.querySelectorAll('.menu-toggle');
+            menuToggles.forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
+                    var clickedLi = this.closest('.menu-item');
+                    if (clickedLi && clickedLi.parentNode) {
+                        // Tìm tất cả các thẻ Li cùng cấp
+                        var siblings = Array.from(clickedLi.parentNode.children);
+                        siblings.forEach(function(sibling) {
+                            if (sibling !== clickedLi && sibling.classList.contains('open')) {
+                                sibling.classList.remove('open');
+                                // Nếu muốn loại bỏ sạch sẽ state (tuỳ chọn)
+                                // sibling.classList.remove('active'); 
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
