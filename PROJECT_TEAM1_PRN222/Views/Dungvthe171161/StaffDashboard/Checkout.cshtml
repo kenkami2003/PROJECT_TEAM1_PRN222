@@ -1,0 +1,28 @@
+﻿@model BoardingHouseManagement.Models.Room
+
+@{
+    bool hasContract = ViewBag.HasContract != null && (bool)ViewBag.HasContract;
+}
+
+<h3>Check-out phòng</h3>
+
+<p><b>Phòng:</b> @Model.RoomNumber</p>
+
+@if (hasContract)
+{
+    <p style="color: green;">Phòng đang có người thuê</p>
+}
+else
+{
+    <p style="color: red;">Phòng hiện không có người thuê</p>
+}
+
+<form asp-action="CheckoutConfirmed" method="post">
+    <input type="hidden" name="roomId" value="@Model.Id" />
+
+    <button class="btn btn-danger">Xác nhận Check-out</button>
+
+    <a href="/StaffDashboard" class="btn btn-secondary">
+        Hủy
+    </a>
+</form>

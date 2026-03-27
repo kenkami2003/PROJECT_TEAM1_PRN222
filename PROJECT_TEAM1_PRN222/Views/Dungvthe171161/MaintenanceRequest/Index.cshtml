@@ -1,0 +1,66 @@
+﻿@model List<BoardingHouseManagement.Models.MaintenanceRequest>
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "~/Views/Shared/_LayoutStaff.cshtml";
+}
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <h5>Yêu cầu </h5>
+
+        <a href="/MaintenanceRequest/Create" class="btn btn-primary btn-sm">
+            + Tạo Mới
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Tiêu Đề</th>
+                    <th>Trạng Thái</th>
+                    <th>Phòng </th>
+                    <th>Ngày Tạo</th>
+                    <th>Hoạt động</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+
+                        <td>
+                            @if (item.Status == RequestStatus.Open)
+                            {
+                                <span class="badge bg-secondary">Có thể sử dụng</span>
+                            }
+                            else if (item.Status == RequestStatus.Processing)
+                            {
+                                <span class="badge bg-warning text-dark">Xử lý</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Đã sửa</span>
+                            }
+                        </td>
+
+                        <td>@(item.Room?.RoomNumber ?? "N/A")</td>
+
+                        <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+
+                        <td>
+                            <a href="/MaintenanceRequest/Edit/@item.Id" class="btn btn-warning btn-sm">
+                                Chỉnh sửa
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                <button class="btn btn-danger btn-sm">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

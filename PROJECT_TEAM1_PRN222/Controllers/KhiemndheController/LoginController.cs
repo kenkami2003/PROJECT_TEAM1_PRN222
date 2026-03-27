@@ -78,6 +78,10 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
             {
                 return RedirectToAction("Index", "Portal", new { area = "" });
             }
+            if (user.Role.RoleName.ToLower() == "staff")
+            {
+                return RedirectToAction("Index", "StaffDashboard", new { area = "" });
+            }
             return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }
 
@@ -146,6 +150,10 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
             if (user.Role.RoleName.ToLower() == "admin")
             {
                 return RedirectToAction("Index", "Portal", new { area = "" });
+            }
+            if (user.Role.RoleName.ToLower() == "staff")
+            {
+                return RedirectToAction("Index", "StaffDashboard", new { area = "" });
             }
             return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }

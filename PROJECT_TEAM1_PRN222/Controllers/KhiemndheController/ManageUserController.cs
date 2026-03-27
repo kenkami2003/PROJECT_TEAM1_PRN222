@@ -63,6 +63,61 @@ namespace PROJECT_TEAM1_PRN222.Controllers.KhiemndheController
             return View("~/Views/Khiemndhe/ListUser.cshtml", users);
         }
 
+        [HttpGet("Create")]
+        public async Task<IActionResult> Create()
+        {
+            var currentUserRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (currentUserRole?.ToLower() != "admin") return RedirectToAction("Index", "Home");
+
+            ViewBag.Roles = await _context.Roles.ToListAsync();
+            return View("~/Views/Khiemndhe/CreateUser.cshtml");
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(string Username, string Password, string FullName, string Email, string Phone, string IdentityNumber, Guid RoleId, bool IsActive)
+        {
+            var currentUserRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (currentUserRole?.ToLower() != "admin") return RedirectToAction("Index", "Home");
+
+            ViewBag.Roles = await _context.Roles.ToListAsync();
+
+            if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
+            {
+                ViewBag.Error = "Tên đăng nhập và mật khẩu là bắt buộc.";
+                return View("~/Views/Khiemndhe/CreateUser.cshtml");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Username == Username))
+            {
+                ViewBag.Error = "Tên đăng nhập đã tồn tại.";
+                return View("~/Views/Khiemndhe/CreateUser.cshtml");
+            }
+
+            if (!string.IsNullOrEmpty(Phone) && !IsValidPhoneNumber(Phone))
+            {
+                ViewBag.Error = "Số điện thoại cá nhân không hợp lệ (phải bắt đầu bằng 03, 05, 07, 08, 09 và đủ 10 số).";
+                return View("~/Views/Khiemndhe/CreateUser.cshtml");
+            }
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = Username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(Password),
+                FullName = FullName ?? "",
+                Email = Email ?? "",
+                Phone = Phone ?? "",
+                IdentityNumber = IdentityNumber ?? "",
+                RoleId = RoleId,
+                IsActive = IsActive
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
         [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
