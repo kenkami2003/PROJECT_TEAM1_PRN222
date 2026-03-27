@@ -1,0 +1,28 @@
+﻿@model BoardingHouseManagement.Models.AssetCategory
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Thêm loại tài sản";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Thêm loại tài sản mới</h5>
+        <small class="text-muted float-end">Thông tin đền bù mặc định</small>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div class="mb-3">
+                <label class="form-label" asp-for="Name">Tên loại tài sản (Ví dụ: Máy lạnh, Giường...)</label>
+                <input type="text" class="form-control" asp-for="Name" placeholder="Nhập tên..." required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="DefaultCompensationPrice">Giá đền bù mặc định (VNĐ)</label>
+                <input type="number" class="form-control" asp-for="DefaultCompensationPrice" placeholder="Ví dụ: 500000" required />
+                <div class="form-text">Giá này sẽ tự động hiện ra khi bạn thêm tài sản vào phòng.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu danh mục</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+        </form>
+    </div>
+</div>

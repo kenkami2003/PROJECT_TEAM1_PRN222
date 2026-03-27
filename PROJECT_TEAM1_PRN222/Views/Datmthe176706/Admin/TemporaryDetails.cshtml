@@ -1,0 +1,244 @@
+﻿@model BoardingHouseManagement.Models.TemporaryGuest
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chi tiết khách vãng lai";
+}
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="py-3 mb-4"><span class="text-muted fw-light">Quản lý /</span> Chi tiết khách vãng lai</h4>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7 col-md-12">
+            <div class="nav-align-top nav-tabs-shadow mb-4">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#tab-general">
+                            <i class="bx bx-info-circle me-1"></i> Lưu trú & Phòng
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-identity">
+                            <i class="bx bx-id-card me-1"></i> Hồ sơ CCCD
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-payment">
+                            <i class="bx bx-receipt me-1"></i> Thanh toán
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-general" role="tabpanel">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small">Họ và tên</label>
+                                <span class="fw-bold fs-5">@Model.FullName</span>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <label class="text-muted d-block small">Trạng thái hiện tại</label>
+                                @if (Model.IsCheckedOut)
+                                {
+                                    <span class="badge bg-label-secondary">Đã trả phòng</span>
+                                }
+                                else if (DateTime.Now >= Model.ArrivalDate && DateTime.Now <= Model.DepartureDate)
+                                {
+                                    <span class="badge bg-label-success">Đang ở</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-label-info">Sắp đến</span>
+                                }
+                            </div>
+
+                            <hr class="my-2">
+
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small"><i class="bx bx-log-in text-success"></i> Ngày đến</label>
+                                <span>@Model.ArrivalDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted d-block small"><i class="bx bx-log-out text-danger"></i> Ngày đi (Dự kiến)</label>
+                                <span>@Model.DepartureDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+
+                            <div class="col-md-6 mt-3">
+                                <h6 class="text-primary mb-2"><i class="bx bx-home"></i> Thông tin phòng</h6>
+                                <p class="mb-1"><strong>Số phòng:</strong> @Model.Room?.RoomNumber</p>
+                                <p class="mb-0"><strong>Tòa nhà:</strong> @Model.Room?.Building?.Name</p>
+                            </div>
+                            <div class="col-md-6 mt-3 text-md-end">
+                                <h6 class="text-primary mb-2">Chi phí dự tính</h6>
+                                <h4 class="text-danger mb-0">@Model.TotalAmount.ToString("N0") VNĐ</h4>
+                                <small class="text-muted">(Đã bao gồm phí dịch vụ phát sinh)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-identity" role="tabpanel">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="fw-bold mb-2 d-block text-center">Mặt trước CCCD</label>
+                                <div class="bg-light p-2 rounded border text-center">
+                                    @if (!string.IsNullOrEmpty(Model.IdentityCardFront))
+                                    {
+                                        <a href="~/uploads/@Model.IdentityCardFront" target="_blank">
+                                            <img src="~/uploads/@Model.IdentityCardFront" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+
+                                        <p class="text-muted my-4 italic">Chưa có ảnh</p>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold mb-2 d-block text-center">Mặt sau CCCD</label>
+                                <div class="bg-light p-2 rounded border text-center">
+                                    @if (!string.IsNullOrEmpty(Model.IdentityCardBack))
+                                    {
+                                        <a href="~/uploads/@Model.IdentityCardBack" target="_blank">
+                                            <img src="~/uploads/@Model.IdentityCardBack" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+
+                                        <p class="text-muted my-4 italic">Chưa có ảnh</p>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="alert alert-info d-flex align-items-center mb-0">
+                                    <i class="bx bx-phone me-2"></i>
+                                    <span>Liên hệ khách hàng: <strong>@Model.PhoneNumber</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-payment" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <label class="text-muted d-block small mb-2">Trạng thái phí</label>
+                                @if (Model.IsPaid)
+                                {
+                                    <div class="alert alert-success">
+                                        <h6 class="alert-heading fw-bold mb-1"><i class="bx bx-check-double"></i> Đã thanh toán</h6>
+                                        <p class="mb-0 small">Giao dịch đã được xác nhận vào hệ thống.</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        <h6 class="alert-heading fw-bold mb-1"><i class="bx bx-error"></i> Chưa thanh toán</h6>
+                                        <p class="mb-0 small">Vui lòng kiểm tra minh chứng hoặc yêu cầu quét mã QR.</p>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-7">
+                                <label class="fw-bold mb-2 d-block">Biên lai / Minh chứng</label>
+                                <div class="text-center border rounded p-2 bg-lighter">
+                                    @if (!string.IsNullOrEmpty(Model.PaymentProof))
+                                    {
+                                        <a href="~/uploads/@Model.PaymentProof" target="_blank">
+                                            <img src="~/uploads/@Model.PaymentProof" class="img-fluid shadow-sm" style="max-height: 250px;" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="py-5">
+                                            <i class="bx bx-image-alt fs-1 text-muted"></i>
+                                            <p class="text-muted">Chưa có ảnh minh chứng</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <a asp-action="TemporaryGuestList" class="btn btn-label-secondary">
+                    <i class="bx bx-chevron-left me-1"></i> Quay lại danh sách
+                </a>
+
+                <div class="d-flex gap-2">
+                    @if (!Model.IsPaid)
+                    {
+                        <a asp-action="PaymentQR" asp-route-id="@Model.Id" class="btn btn-primary">
+                            <i class="bx bx-qr-scan me-1"></i> Thu tiền ngay
+                        </a>
+                    }
+
+                    @if (!Model.IsCheckedOut && Model.IsPaid)
+                    {
+                        <button type="button" class="btn btn-danger" onclick="confirmCheckOut('@Model.Id')">
+                            <i class="bx bx-exit me-1"></i> Thực hiện trả phòng
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5 col-md-12">
+            <div class="card bg-lighter shadow-none border-0 mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Quy trình khách vãng lai</h6>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="badge bg-label-secondary p-2 me-3 rounded @(Model.IsPaid ? "" : "border border-primary")"><i class="bx bx-user-plus"></i></div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 fw-bold">1. Khai báo & Nhận phòng</p>
+                            <small class="text-muted">Lưu CCCD và cấp phòng tạm thời.</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="badge bg-label-secondary p-2 me-3 rounded @(Model.IsPaid ? "bg-label-success" : "")"><i class="bx bx-wallet"></i></div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 fw-bold">2. Thanh toán</p>
+                            <small class="text-muted">Thu phí dựa trên số ngày lưu trú.</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <div class="badge bg-label-secondary p-2 me-3 rounded @(Model.IsCheckedOut ? "bg-label-danger" : "")"><i class="bx bx-key"></i></div>
+                        <div class="flex-grow-1">
+                            <p class="mb-0 fw-bold">3. Trả phòng (Check-out)</p>
+                            <small class="text-muted">Giải phóng phòng về trạng thái Trống.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info border-0 shadow-none">
+                <h6 class="alert-heading fw-bold mb-1">Nhắc nhở:</h6>
+                <ul class="ps-3 mb-0 small">
+                    <li>Đảm bảo đã lưu ảnh mặt trước & sau CCCD.</li>
+                    <li>Chỉ cho khách vào phòng khi đã `Reserved`.</li>
+                    <li>Bấm Trả phòng để phòng hiển thị lại trong danh sách trống.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+<script>
+    // Tận dụng hàm Check-out đã viết ở trang List
+    function confirmCheckOut(guestId) {
+        if (confirm("Xác nhận khách đã dọn đồ và trả phòng?")) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch('/Datmthe176706/TemporaryGuests/CheckOut', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'id': guestId, '__RequestVerificationToken': token })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { alert(data.message); location.reload(); }
+                else alert(data.message);
+            });
+        }
+    }
+</script>

@@ -1,0 +1,204 @@
+﻿@model IEnumerable<BoardingHouseManagement.Models.Reservation>
+@using BoardingHouseManagement.Models
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Danh Sách Đặt Chỗ";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="mb-3">Bộ lọc tìm kiếm nâng cao</h5>
+        <form asp-action="ReservationList" method="get">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm khách hàng/Phòng</label>
+                    <div class="input-group input-group-merge">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control" placeholder="Tên khách, SĐT, số phòng...">
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Tòa nhà</label>
+                    <select name="buildingId" class="form-select">
+                        <option value="">Tất cả tòa nhà</option>
+                        @foreach (var b in (List<Building>)ViewBag.Buildings)
+                        {
+                            <!option value="@b.Id" @(ViewBag.SelectedBuilding == b.Id ? "selected" : "")>@b.Name</!option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="status" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <!option value="Pending" @(ViewBag.SelectedStatus?.ToString() == "Pending" ? "selected" : "")>Chờ thanh toán</!option>
+                        <!option value="Confirmed" @(ViewBag.SelectedStatus?.ToString() == "Confirmed" ? "selected" : "")>Đã giữ chỗ</!option>
+                        <!option value="Cancelled" @(ViewBag.SelectedStatus?.ToString() == "Cancelled" ? "selected" : "")>Đã hủy</!option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Từ ngày</label>
+                    <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Đến ngày</label>
+                    <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control">
+                </div>
+
+                <div class="col-12 text-end mt-3">
+                    <a href="@Url.Action("ReservationList")" class="btn btn-label-secondary me-2">
+                        <i class="bx bx-refresh me-1"></i>Xóa lọc
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-filter-alt me-1"></i>Áp dụng lọc
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <h5 class="card-header">Quản lý các bản ghi giữ chỗ phòng</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead class="table-light">
+                <tr>
+                    <th>Ngày Đặt</th>
+                    <th>ID Phòng</th>
+                    <th>Người đặt</th>
+                    <th>Tiền Cọc (50%)</th>
+                    <th>Ngày Hết Hạn</th>
+                    <th>Trạng Thái</th>
+                    <th>Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <i class="icon-base bx bx-calendar text-primary me-2"></i>
+                            <span>@item.ReservedDate.ToString("dd/MM/yyyy HH:mm")</span>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">@item.Room?.RoomNumber</span>
+                                <small class="text-muted">@item.Room?.Building?.Name</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">@item.Guest?.FullName</span>
+                                <small class="text-muted">@item.Guest?.Phone</small>
+                            </div>
+                        </td>
+
+                        <td class="fw-bold">@item.ReservationFee.ToString("N0") VNĐ</td>
+
+                        <td>
+                            @if (item.ExpiryDate < DateTime.Now && !item.IsConvertedToContract)
+                            {
+                                <span class="text-danger"><i class="bx bx-time-five"></i> @item.ExpiryDate.ToString("dd/MM/yyyy")</span>
+                            }
+                            else
+                            {
+                                <span>@item.ExpiryDate.ToString("dd/MM/yyyy")</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.IsConvertedToContract)
+                            {
+                                @* Trường hợp đã xử lý xong thành hợp đồng - Ưu tiên cao nhất *@
+                                <span class="badge bg-label-success">
+                                    <i class="bx bx-check-double me-1"></i> Đã ký HĐ
+                                </span>
+                            }
+                            else
+                            {
+                                @switch (item.Status)
+                                {
+                                    case ReservationStatus.Pending:
+                                        if (item.ExpiryDate < DateTime.Now)
+                                        {
+                                            @* Đang chờ nhưng đã hết hạn *@
+                                            <span class="badge bg-label-danger">
+                                                <i class="bx bx-time-five me-1"></i> Quá hạn/Hủy
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            @* Đang chờ và vẫn trong thời hạn *@
+                                            <span class="badge bg-label-warning">
+                                                <i class="bx bx-sync bx-spin me-1"></i> Chờ xác nhận
+                                            </span>
+                                        }
+                                        break;
+
+                                    case ReservationStatus.Confirmed:
+                                        @* Admin đã bấm nút xác nhận tiền *@
+                                        <span class="badge bg-label-info">
+                                            <i class="bx bx-badge-check me-1"></i> Đã giữ chỗ
+                                        </span>
+                                        break;
+
+                                    case ReservationStatus.Cancelled:
+                                        @* Bị hủy chủ động bởi Admin hoặc khách *@
+                                        <span class="badge bg-label-secondary">
+                                            <i class="bx bx-x-circle me-1"></i> Đã hủy
+                                        </span>
+                                        break;
+
+                                    default:
+                                        <span class="badge bg-label-light">
+                                            <i class="bx bx-help-circle me-1"></i> @item.Status
+                                        </span>
+                                        break;
+                                }
+                            }
+                        </td>
+
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="icon-base bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item"
+                                       asp-area="Datmthe176706"
+                                       asp-controller="Reservations"
+                                       asp-action="Details"
+                                       asp-route-id="@item.Id">
+                                        <i class="icon-base bx bx-show me-1"></i> Chi tiết
+                                    </a>
+                                    @if (!item.IsConvertedToContract)
+                                    {
+                                        <a class="dropdown-item" href="@Url.Action("CreateContract", "Admin", new { reservationId = item.Id })">
+                                            <i class="icon-base bx bx-file me-1"></i> Lập hợp đồng
+                                        </a>
+                                    }
+                                    @* 1. Thẻ link hiển thị *@
+                                    <a class="dropdown-item text-danger" href="javascript:void(0);"
+                                       onclick="if(confirm('Xác nhận hủy đặt chỗ này?')) { document.getElementById('cancel-form-@item.Id').submit(); }">
+                                        <i class="icon-base bx bx-trash me-1"></i> Hủy đặt
+                                    </a>
+
+                                    @* 2. Form ẩn đi kèm ngay bên dưới *@
+                                    <form id="cancel-form-@item.Id" asp-action="CancelReservation" method="post" style="display:none;">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        @Html.AntiForgeryToken()
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

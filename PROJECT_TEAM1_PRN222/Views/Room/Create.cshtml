@@ -1,0 +1,95 @@
+﻿@model BoardingHouseManagement.Models.Room
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers    
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Thêm Phòng Mới";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-7">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="card-title mb-0 text-center uppercase fw-bold">
+                        <i class="fas fa-door-open me-2"></i>Thiết Lập Phòng Mới
+                    </h5>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                        <span class="text-muted"><i class="fas fa-city me-1"></i> @ViewBag.PropertyName</span>
+                        <span class="badge bg-secondary">Dãy: @ViewBag.BuildingName</span>
+                    </div>
+                    <div asp-validation-summary="All" class="text-danger mb-3 fw-bold"></div>
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="BuildingId" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RoomNumber" class="form-label fw-bold">Số phòng / Tên phòng</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-hashtag"></i></span>
+                                    <input asp-for="RoomNumber" class="form-control form-control-lg" placeholder="101, A2..." />
+                                </div>
+                                <span asp-validation-for="RoomNumber" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label fw-bold">Trạng thái ban đầu</label>
+                                <select asp-for="Status" asp-items="Html.GetEnumSelectList<RoomStatus>()" class="form-select form-select-lg">
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BasePrice" class="form-label fw-bold">Giá thuê (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">₫</span>
+                                    <input asp-for="BasePrice" type="number" class="form-control form-control-lg text-end" step="0.01" />
+                                </div>
+                                <span asp-validation-for="BasePrice" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DepositAmount" class="form-label fw-bold">Tiền đặt cọc (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">₫</span>
+                                    <input asp-for="DepositAmount" type="number" class="form-control form-control-lg text-end" step="0.01" />
+                                </div>
+                                <span asp-validation-for="DepositAmount" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold">Ghi chú / Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Ví dụ: Có ban công, nội thất cơ bản..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row pt-2">
+                            <div class="col-6">
+                                <a asp-controller="Building" asp-action="Index" class="btn btn-outline-secondary w-100 py-2">
+                                    <i class="fas fa-times me-1"></i> Hủy bỏ
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-success w-100 py-2 shadow-sm">
+                                    <i class="fas fa-save me-1"></i> Lưu phòng
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

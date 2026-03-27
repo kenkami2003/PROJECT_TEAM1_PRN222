@@ -1,0 +1,49 @@
+﻿<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between">
+        <h6 class="mb-0">Danh sách tài sản trong phòng</h6>
+        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addAssetModal">
+            <i class="fas fa-plus"></i> Thêm tài sản
+    </div>
+</div>
+<div class="card-body">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên tài sản</th>
+                <th>SL</th>
+                <th>Tình trạng</th>
+                <th>Giá đền bù (Dự kiến)</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Assets)
+            {
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" class="img-thumbnail" style="width: 50px; cursor: pointer;" onclick="viewImage('@item.ImageUrl')" />
+                        }
+                        else
+                        {
+                            <i class="fas fa-image text-muted"></i>
+                        }
+                    </td>
+                    <td>
+                        <div class="fw-bold">@item.AssetCategory.Name</div>
+                        <small class="text-muted">@item.Note</small>
+                    </td>
+                    <td>@item.Quantity</td>
+                    <td><span class="badge bg-info">@item.Condition</span></td>
+                    <td>@item.AssetCategory.DefaultCompensationPrice.ToString("N0")đ</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+</div>

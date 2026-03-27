@@ -1,0 +1,74 @@
+﻿@model BoardingHouseManagement.Models.TemporaryGuest
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Thanh toán QR";
+}
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Quét mã thanh toán</h5>
+                    <small class="text-muted">Bước 2/2</small>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <h6 class="fw-bold">Khách hàng: @Model.FullName</h6>
+                        <h4 class="text-primary fw-bold">@Model.TotalAmount.ToString("N0") VNĐ</h4>
+                    </div>
+
+                    <div class="bg-light p-3 rounded mb-4">
+                        <img src="@ViewBag.QrUrl" alt="VietQR" class="img-fluid rounded shadow-sm" style="max-width: 280px;" />
+                    </div>
+
+                    <div class="alert alert-warning small text-start">
+                        <i class="bx bx-info-circle me-1"></i>
+                        Yêu cầu khách quét mã và thực hiện chuyển khoản. Admin/Staff vui lòng kiểm tra thông báo biến động số dư trước khi xác nhận.
+                    </div>
+
+                    <hr />
+
+                    <form asp-action="ConfirmPayment" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold">Chụp/Tải biên lai xác nhận</label>
+                            <input type="file" name="paymentProof" class="form-control" accept="image/*" required />
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bx bx-check-double me-1"></i> Xác nhận đã nhận tiền
+                            </button>
+                            <a asp-action="TemporaryGuestList" class="btn btn-outline-secondary">Để sau</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <h5 class="card-header">Tóm tắt đăng ký</h5>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>Phòng:</span> <span class="fw-bold">@Model.Room?.RoomNumber</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>Ngày vào:</span> <span>@Model.ArrivalDate.ToString("dd/MM/yyyy")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>Ngày ra:</span> <span>@Model.DepartureDate.ToString("dd/MM/yyyy")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>Số điện thoại:</span> <span>@Model.PhoneNumber</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
