@@ -2,7 +2,7 @@ using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
+namespace PROJECT_TEAM1_PRN222.Controllers
 {
     public class StaffDashboardController : Controller
     {
@@ -20,10 +20,12 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
     .Include(x => x.Room)
     .AsQueryable();
 
-            if (!string.IsNullOrEmpty(status) && Enum.TryParse(status, true, out RequestStatus statusEnum))
+            if (!string.IsNullOrWhiteSpace(status)
+    && Enum.TryParse<RequestStatus>(status.Trim(), true, out var statusEnum))
             {
                 query = query.Where(x => x.Status == statusEnum);
             }
+            
 
             var list = query
                 .OrderByDescending(x => x.CreatedAt)
@@ -66,7 +68,13 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Dungvthe171161
                     request.Status = RequestStatus.Open;
                     break;
             }
-
+            _context.AuditLogs.Add(new AuditLog
+            {
+                UserId = Guid.NewGuid(),
+                Action = "UPDATE_STATUS",
+                Details = $"Request {id} -> {status}",
+                Timestamp = DateTime.Now
+            });
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
