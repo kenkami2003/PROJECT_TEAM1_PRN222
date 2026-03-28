@@ -1,4 +1,5 @@
 using BoardingHouseManagement.Models;
+using BoardingHouseManagement.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
     });
 
 // Add services to the container.
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();

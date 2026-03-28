@@ -1,0 +1,63 @@
+@model BoardingHouseManagement.ViewModel.PaymentViewModel
+@{
+    ViewData["Title"] = "Thanh toán Hoá đơn";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Thanh toán Hoá đơn: @Model.InvoiceCode</h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-info">
+                            @ViewBag.Message
+                        </div>
+                    }
+
+                    <p><strong>Người thuê:</strong> @Model.Username</p>
+                    <p><strong>Kỳ thu:</strong> Tháng @Model.Month - Năm @Model.Year</p>
+                    <hr />
+                    <h4 class="text-danger"><strong>Tổng số tiền:</strong> @Model.TotalAmount.ToString("N0") VNĐ</h4>
+
+                    @if (ViewBag.Message == null)
+                    {
+                        <form asp-action="Process" method="post" class="mt-4">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="InvoiceId" />
+                            <input type="hidden" asp-for="InvoiceCode" />
+                            
+                            <div class="form-group mb-3">
+                                <label asp-for="PaymentMethod" class="control-label fw-bold">Chọn phương thức thanh toán</label>
+                                <select asp-for="PaymentMethod" class="form-control">
+                                    <option value="">-- Chọn phương thức --</option>
+                                    <option value="Tiền mặt">Tiền mặt</option>
+                                    <option value="Chuyển khoản ngân hàng">Chuyển khoản ngân hàng</option>
+                                    <option value="Ví điện tử MoMo">Ví điện tử MoMo</option>
+                                </select>
+                                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 btn-lg">Xác nhận thanh toán</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-center mt-3">
+                            <a href="/" class="btn btn-secondary">Quay lại trang chủ</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
