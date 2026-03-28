@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en"
+      class="light-style layout-menu-fixed"
+      dir="ltr"
+      data-theme="theme-default"
+      data-assets-path="~/Admin/assets/"
+      data-template="vertical-menu-template-free">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <title>Quản Lý Trọ FPT</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="~/Admin/assets/img/favicon/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+          rel="stylesheet" />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="~/Admin/assets/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="~/Admin/assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="~/Admin/assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="~/Admin/assets/css/demo.css" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="~/Admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+    <link rel="stylesheet" href="~/Admin/assets/vendor/libs/apex-charts/apex-charts.css" />
+
+    <!-- Helpers -->
+    <script src="~/Admin/assets/vendor/js/helpers.js"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="~/Admin/assets/js/config.js"></script>
+</head>
+
+<body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+        <div class="layout-container">
+            <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo">
+            <a href="~/Admin/Portal" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <!-- SVG Logo could go here -->
+              </span>
+              <span class="app-brand-text demo menu-text fw-bolder ms-2">Quản Lý Trọ FPT</span>
+            </a>
+
+                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                        <i class="bx bx-chevron-left bx-sm align-middle"></i>
+                    </a>
+                </div>
+
+                <div class="menu-inner-shadow"></div>
+
+          <ul class="menu-inner py-1">
+            <li class="menu-item">
+              <a href="~/Admin/Portal" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Analytics">Dashboard</div>
+              </a>
+            </li>
+
+            <!-- Quản lý người dùng -->
+            <li class="menu-item">
+                <a href="~/Admin/User" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-user"></i>
+                    <div data-i18n="User Management">Quản lý người dùng</div>
+                </a>
+            </li>
+
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Pages</span>
+                    </li>
+
+                    
+                    <li class="menu-item">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                            <div data-i18n="Pr Settings">Quản lý khu trọ</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                                <a href="~/Property" class="menu-link">
+                                    <div data-i18n="PropertyList ">Danh sách khu trọ</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="~/Property/Create" class="menu-link">
+                                    <div data-i18n="Property">Tạo Khu Trọ</div>
+                                </a>
+                            </li>
+
+
+                            <li class="menu-item">
+                                <a href="~/Building" class="menu-link">
+                                    <div data-i18n="BuildingList">Danh sách chi tiết các khu trọ</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="~/Building/create" class="menu-link">
+                                    <div data-i18n="BuildingCreate">Thêm dãy trọ mới</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="~/Room" class="menu-link">
+                                    <div data-i18n="RoomDetail">Danh sách phòng</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="~/Utility/createBatch" class="menu-link">
+                                    <div data-i18n="UtilityCreate">Thêm số điện nước hàng tháng</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon tf-icons bx bx-package"></i>
+                                    <div data-i18n="Assets">Quản lý tài sản</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li class="menu-item">
+                                        <a href="~/AssetCategory" class="menu-link">
+                                            <div data-i18n="AssetCategory">Danh mục loại tài sản</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="~/AssetCategory/Create" class="menu-link">
+                                            <div data-i18n="AssetCreate">Thêm loại tài sản mới</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                           
+                        </ul>
+                    </li>
+
+                    <li class="menu-item">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                            <div data-i18n="Pr Settings">Quản lý Hợp đồng</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                                <a href="~/Datmthe176706/Contracts/ContractList" class="menu-link">
+                                    <div data-i18n="PropertyList ">Danh sách hợp đòng thuê</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="~/Datmthe176706/Reservations/ReservationList" class="menu-link">
+                                    <div data-i18n="Property">Danh sách hợp đồng đặt chỗ</div>
+                                </a>
+                            </li>
+                        
+                            <li class="menu-item">
+                                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                    <i class="menu-icon tf-icons bx bx-package"></i>
+                                    <div data-i18n="Assets">Quản lý hợp đồng tạm trú</div>
+                                </a>
+                                <ul class="menu-sub">
+                                    <li class="menu-item">
+                                        <a href="~/Datmthe176706/TemporaryGuests/TemporaryGuestList" class="menu-link">
+                                            <div data-i18n="AssetCategory">Danh sách hợp đồng tạm trú</div>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a href="~/Datmthe176706/TemporaryGuests/CreateShortTerm" class="menu-link">
+                                            <div data-i18n="AssetCreate">Thêm hợp đồng mới</div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item">
+                                <a href="~/Datmthe176706/Dashboards/PaymentList" class="menu-link">
+                                    <div data-i18n="Property">Danh sách biên lai hợp đồng</div>
+                                </a>
+                            </li>
+
+
+                        </ul>
+                    </li>
+                </ul>
+            </aside>
+            <!-- / Menu -->
+            <!-- Layout container -->
+            <div class="layout-page">
+                <!-- Navbar -->
+
+                <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                     id="layout-navbar">
+                    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                            <i class="bx bx-menu bx-sm"></i>
+                        </a>
+                    </div>
+
+                    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                        <ul class="navbar-nav flex-row align-items-center ms-auto">
+                            <!-- User -->
+                            <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                                    <div class="avatar avatar-online">
+                                        <img src="~/Admin/assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="avatar avatar-online">
+                                                        <img src="~/Admin/assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <span class="fw-semibold d-block">Admin</span>
+                                                    <small class="text-muted">Manager</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="~/Profile/Logout">
+                                            <i class="bx bx-power-off me-2"></i>
+                                            <span class="align-middle">Log Out</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!--/ User -->
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- / Navbar -->
+                <!-- Content wrapper -->
+                <div class="content-wrapper">
+                    <!-- Content -->
+                    <div class="container-xxl flex-grow-1 container-p-y">
+                        @RenderBody()
+                    </div>
+                    <!-- / Content -->
+                    <!-- Footer -->
+                    <footer class="content-footer footer bg-footer-theme">
+                        <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                            <div class="mb-2 mb-md-0">
+                                ©
+                                <script>
+                                    document.write(new Date().getFullYear());
+                                </script>
+                                , made with ❤️ by
+                                <a href="#" target="_blank" class="footer-link fw-bolder">ThemeSelection</a>
+                            </div>
+                        </div>
+                    </footer>
+                    <!-- / Footer -->
+
+                    <div class="content-backdrop fade"></div>
+                </div>
+                <!-- Content wrapper -->
+            </div>
+            <!-- / Layout page -->
+        </div>
+
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+    <!-- Core JS -->
+    <script src="~/Admin/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="~/Admin/assets/vendor/libs/popper/popper.js"></script>
+    <script src="~/Admin/assets/vendor/js/bootstrap.js"></script>
+    <script src="~/Admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="~/Admin/assets/vendor/js/menu.js"></script>
+
+    <!-- Vendors JS -->
+    <script src="~/Admin/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+
+    <!-- Main JS -->
+    <script src="~/Admin/assets/js/main.js"></script>
+
+    <!-- Script tự động active menu dựa trên URL hiện tại -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var currentPath = window.location.pathname.toLowerCase();
+            var menuLinks = document.querySelectorAll('.layout-menu .menu-link:not(.menu-toggle)');
+            
+            var bestMatch = null;
+            var bestMatchLength = 0;
+
+            // Tìm link gần giống với URL đang đứng nhất
+            menuLinks.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (href && href !== 'javascript:void(0);' && href !== '#') {
+                    // Cắt bỏ ký tự ~ để match với pathname
+                    var linkPath = href.replace('~', '').toLowerCase();
+                    if (currentPath === '/' && linkPath === '/') {
+                        bestMatch = link;
+                    } else if (linkPath !== '/' && currentPath.includes(linkPath)) {
+                        if (linkPath.length > bestMatchLength) {
+                            bestMatchLength = linkPath.length;
+                            bestMatch = link;
+                        }
+                    }
+                }
+            });
+
+            // Gỡ bỏ tất cả active mặc định (nếu có)
+            document.querySelectorAll('.layout-menu .menu-item.active').forEach(function(el) {
+                el.classList.remove('active');
+            });
+
+            // Gán lại active và open cho đúng thẻ
+            if (bestMatch) {
+                // Thêm active cho chính sub-menu đó
+                var parentLi = bestMatch.closest('.menu-item');
+                if (parentLi) {
+                    parentLi.classList.add('active');
+                }
+
+                // Đi ngược lên dom tree tìm thẻ cha menu-item lớn chứa danh mục đó và mở ra
+                var currentElement = bestMatch;
+                while (currentElement) {
+                    var menuSub = currentElement.closest('.menu-sub');
+                    if (menuSub) {
+                        var parentMenuItem = menuSub.closest('.menu-item'); // Thẻ cha chứa menu-toggle
+                        if (parentMenuItem) {
+                            parentMenuItem.classList.add('active', 'open');
+                        }
+                        currentElement = parentMenuItem; // Tiếp tục đi lên xem còn cha nữa không
+                    } else {
+                        break;
+                    }
+                }
+            } else if (currentPath === '/' || currentPath === '/admin/portal') {
+                // Fallback nếu không match cái nào cả thì gán cho dashboard
+                var dashboardLink = document.querySelector('a[href="~/Admin/Portal"]');
+                if (dashboardLink) {
+                    var item = dashboardLink.closest('.menu-item');
+                    if (item) item.classList.add('active');
+                }
+            }
+
+            // Accordion: Khi mở 1 danh mục chính thì danh mục kia tự gập lại (VD: bấm "Quản lý Hợp đồng" thì gập "Quản lý trọ")
+            var menuToggles = document.querySelectorAll('.menu-toggle');
+            menuToggles.forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
+                    var clickedLi = this.closest('.menu-item');
+                    if (clickedLi && clickedLi.parentNode) {
+                        // Tìm tất cả các thẻ Li cùng cấp
+                        var siblings = Array.from(clickedLi.parentNode.children);
+                        siblings.forEach(function(sibling) {
+                            if (sibling !== clickedLi && sibling.classList.contains('open')) {
+                                sibling.classList.remove('open');
+                                // Nếu muốn loại bỏ sạch sẽ state (tuỳ chọn)
+                                // sibling.classList.remove('active'); 
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

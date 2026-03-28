@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Staff Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/Admin/vendor/fonts/boxicons.css" />
+    <link rel="stylesheet" href="~/Admin/vendor/css/core.css" />
+    <link rel="stylesheet" href="~/Admin/vendor/css/theme-default.css" />
+    <link rel="stylesheet" href="~/Admin/css/demo.css" />
+
+    @RenderSection("PageStyles", required: false)
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .layout {
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: #233446;
+            color: white;
+        }
+
+            .sidebar a {
+                color: white;
+                display: block;
+                padding: 12px 20px;
+                text-decoration: none;
+            }
+
+                .sidebar a:hover {
+                    background: #1abc9c;
+                }
+
+            .sidebar .active {
+                background: #16a085;
+            }
+
+        /* CONTENT */
+        .main {
+            flex: 1;
+            background: #f5f6fa;
+        }
+
+        .navbar {
+            background: white;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+
+            <h3 style="padding:15px;">Staff</h3>
+
+            <a href="/StaffDashboard" class="menu-link">
+                Dashboard
+            </a>
+
+            <a href="/MaintenanceRequest/Index" class="menu-link">
+                Yêu cầu bảo trì
+            </a>
+
+            <a href="/AuditLogs" class="menu-link">
+                Nhật ký
+            </a>
+
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+
+            <!-- NAVBAR -->
+            <div class="navbar">
+                <div style="float:right;">
+                    <a href="~/Profile/Logout" class="btn btn-danger btn-sm">
+                        Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="content">
+                @RenderBody()
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JS -->
+    <script src="~/Admin/vendor/libs/jquery/jquery.js"></script>
+    <script src="~/Admin/vendor/js/bootstrap.js"></script>
+
+    <!-- ACTIVE MENU -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var current = window.location.pathname.toLowerCase();
+            var links = document.querySelectorAll(".menu-link");
+
+            links.forEach(link => {
+                var href = link.getAttribute("href");
+                if (href && current.startsWith(href.toLowerCase())) {
+                    link.classList.add("active");
+                }
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

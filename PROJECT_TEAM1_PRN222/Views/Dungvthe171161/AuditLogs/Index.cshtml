@@ -1,0 +1,74 @@
+﻿@model List<BoardingHouseManagement.Models.AuditLog>
+
+@{
+    Layout = "~/Views/Shared/_LayoutStaff.cshtml";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bx bx-history me-2"></i> Audit Logs
+        </h5>
+
+        <a href="/AuditLogs/CreateTest" class="btn btn-primary btn-sm">
+            <i class="bx bx-plus"></i> Add Log
+        </a>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <!-- User -->
+                        <td>
+                            <span class="fw-semibold">
+                                @item.UserId.ToString().Substring(0, 8)...
+                            </span>
+                        </td>
+
+                        <!-- Action -->
+                        <td>
+                            @if (item.Action.Contains("CREATE"))
+                            {
+                                <span class="badge bg-success">CREATE</span>
+                            }
+                            else if (item.Action.Contains("UPDATE"))
+                            {
+                                <span class="badge bg-warning text-dark">UPDATE</span>
+                            }
+                            else if (item.Action.Contains("DELETE"))
+                            {
+                                <span class="badge bg-danger">DELETE</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@item.Action</span>
+                            }
+                        </td>
+
+                        <!-- Details -->
+                        <td>@item.Details</td>
+
+                        <!-- Time -->
+                        <td>
+                            <span class="text-muted">
+                                @item.Timestamp.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

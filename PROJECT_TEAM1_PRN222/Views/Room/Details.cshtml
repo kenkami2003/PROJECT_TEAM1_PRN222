@@ -1,0 +1,233 @@
+﻿@model BoardingHouseManagement.Models.Room
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    
+}
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-couch me-2"></i>Trang thiết bị & Tài sản</h5>
+        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#addAssetModal">
+            <i class="fas fa-plus"></i> Thêm tài sản
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th width="100" class="text-center">Ảnh</th>
+                    <th class="text-center">Tài sản</th>
+                    <th width="80" class="text-center">SL</th>
+                    <th class="text-center">Tình trạng</th>
+                    <th class="text-center">Đền bù</th>
+                    <th width="80" class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var asset in Model.RoomAssets)
+                {
+                    <tr id="row-@asset.Id">
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(asset.ImageUrl))
+                            {
+                                <a href="@asset.ImageUrl" target="_blank">
+                                    <img src="@asset.ImageUrl" class="rounded border shadow-sm" style="width: 55px; height: 55px; object-fit: cover;" />
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="bg-light text-muted d-inline-block rounded border" style="width: 55px; height: 55px; line-height: 55px;">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            <div class="fw-bold text-dark">@asset.AssetCategory?.Name</div>
+                            <small class="text-muted">@asset.Note</small>
+                        </td>
+
+                        <td class="text-center fw-bold">
+                            @asset.Quantity
+                        </td>
+
+                        <td class="text-center">
+                            <span class="badge bg-label-info text-dark" style="background-color: #e1f5fe; padding: 0.5em 0.8em;">
+                                @asset.Condition
+                            </span>
+                        </td>
+
+                        <td class="text-center text-danger fw-bold">
+                            @((asset.AssetCategory?.DefaultCompensationPrice * asset.Quantity)?.ToString("N0"))đ
+                        </td>
+
+                        <td class="text-center">
+                            <button type="button" onclick="deleteAsset('@asset.Id')" class="btn btn-icon btn-outline-danger btn-sm border-0">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="addAssetModal" tabindex="-1" aria-labelledby="addAssetModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Room" asp-action="AddAsset" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="addAssetModalLabel"><i class="fas fa-plus-circle me-2"></i>Thêm tài sản mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="RoomId" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại tài sản</label>
+                        <select name="AssetCategoryId" class="form-select" required>
+                            <option value="">-- Chọn loại tài sản --</option>
+                            @if (ViewBag.AssetCategories != null)
+                            {
+                                foreach (var cat in ViewBag.AssetCategories)
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Số lượng</label>
+                            <input type="number" name="Quantity" class="form-control" value="1" min="1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tình trạng</label>
+                            <input type="text" name="Condition" class="form-control" placeholder="Mới, cũ..." value="Bình thường" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ghi chú</label>
+                        <textarea name="Note" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chụp ảnh thiết bị (Tùy chọn)</label>
+                        <input type="file" name="AssetImage" id="imageInput" class="form-control" accept="image/*" capture="camera" />
+                        <div id="previewContainer" class="mt-2 d-none">
+                            <img id="imagePreview" src="#" alt="Preview" class="img-fluid" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-warning fw-bold">Xác nhận thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. Xử lý hiển thị ảnh ngay khi chọn file hoặc chụp hình
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
+
+        if (imageInput) {
+            imageInput.onchange = evt => {
+                const [file] = imageInput.files;
+                if (file) {
+                    // Tạo đường dẫn tạm thời cho file vừa chọn
+                    imagePreview.src = URL.createObjectURL(file);
+                    // Hiển thị khung chứa ảnh
+                    previewContainer.classList.remove('d-none');
+
+                    // Giải phóng bộ nhớ sau khi ảnh đã load xong
+                    imagePreview.onload = () => {
+                        URL.revokeObjectURL(imagePreview.src);
+                    }
+                }
+            };
+        }
+
+        // 2. Hàm xóa tài sản sử dụng AJAX (để không bị load lại trang)
+        function deleteAsset(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa tài sản này khỏi phòng không?')) {
+                $.ajax({
+                    url: '/RoomAsset/Delete/' + id,
+                    type: 'POST',
+                    success: function (result) {
+                        // Hiệu ứng ẩn dòng vừa xóa cho đẹp
+                        $(`#row-${id}`).fadeOut(500, function() {
+                            $(this).remove();
+                        });
+                        // Thông báo nhỏ nếu muốn
+                        console.log("Đã xóa tài sản thành công.");
+                    },
+                    error: function (err) {
+                        alert('Có lỗi xảy ra khi xóa tài sản. Vui lòng thử lại!');
+                        console.error(err);
+                    }
+                });
+            }
+        }
+
+        // 3. (Tùy chọn) Tự động reset form khi đóng Modal
+        $('#addAssetModal').on('hidden.bs.modal', function () {
+            $(this).find('form').trigger('reset');
+            previewContainer.classList.add('d-none');
+            imagePreview.src = '#';
+        });
+    </script>
+
+    <style>
+        /* CSS bổ sung để ảnh preview nhìn chuyên nghiệp hơn */
+        #imagePreview {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid #dee2e6;
+        }
+
+        .img-thumbnail-custom {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .img-thumbnail-custom:hover {
+                transform: scale(1.1);
+            }
+    </style>
+        function deleteAsset(id) {
+        if (confirm('Bạn có muốn xóa tài sản này khỏi phòng không?')) {
+            // Gửi yêu cầu xóa đến server
+            $.ajax({
+                url: '/Room/DeleteAsset/' + id, // Thay đổi đường dẫn này cho khớp với Controller của bạn
+                type: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        // Hiệu ứng biến mất dòng đó
+                        $(`#row-${id}`).fadeOut(400, function() {
+                            $(this).remove();
+                        });
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('Không thể kết nối với máy chủ.');
+                }
+            });
+        }
+    }
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />

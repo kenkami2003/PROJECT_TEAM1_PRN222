@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Bỏ qua file cấu hình chứa secret
+PROJECT_TEAM1_PRN222/appsettings.json

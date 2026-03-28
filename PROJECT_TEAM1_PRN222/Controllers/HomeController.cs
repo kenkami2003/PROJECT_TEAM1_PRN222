@@ -4,6 +4,7 @@ using PROJECT_TEAM1_PRN222.Models;
 
 namespace PROJECT_TEAM1_PRN222.Controllers
 {
+    // test git
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -15,7 +16,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Users", new { area = "Datmthe176706" });
         }
 
         public IActionResult Privacy()

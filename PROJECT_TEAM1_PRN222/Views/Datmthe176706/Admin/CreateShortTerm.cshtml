@@ -1,0 +1,136 @@
+﻿@model BoardingHouseManagement.Models.TemporaryGuest
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Đăng Ký Thuê Ngắn Hạn";
+}
+
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="py-3 mb-4"><span class="text-muted fw-light">Quản lý /</span> Đăng ký khách vãng lai</h4>
+
+    <form asp-action="CreateShortTerm" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <h5 class="card-header">Thông tin khách hàng</h5>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên khách hàng</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="090..." required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số CCCD/Passport</label>
+                            <input asp-for="IdentityNumber" class="form-control" placeholder="034..." />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ảnh mặt trước CCCD</label>
+                                <input type="file" name="frontImg" class="form-control" accept="image/*" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ảnh mặt sau CCCD</label>
+                                <input type="file" name="backImg" class="form-control" accept="image/*" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <h5 class="card-header">Thông tin thuê & Thanh toán</h5>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Chọn phòng</label>
+                            <select asp-for="RoomId" id="roomSelect" class="form-select" required>
+                                <option value="">-- Chọn phòng trống --</option>
+                                @if (ViewBag.Rooms != null)
+                                {
+                                    @foreach (var room in ViewBag.Rooms)
+                                    {
+                                        <option value="@room.Id" data-price="@room.BasePrice">
+                                            @room.RoomNumber (@room.BasePrice.ToString("N0") VNĐ/tháng)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày vào</label>
+                                <input asp-for="ArrivalDate" id="arrivalDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày ra (dự kiến)</label>
+                                <input asp-for="DepartureDate" id="departureDate" type="date" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info py-2 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Tổng cộng:</span>
+                                <span class="fw-bold" id="displayTotal">0 VNĐ</span>
+                            </div>
+                            <input type="hidden" asp-for="TotalAmount" id="totalAmountInput" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea asp-for="Note" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bx bx-check-circle"></i> Tiếp tục đến trang QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const roomSelect = document.getElementById('roomSelect');
+        const arrivalInput = document.getElementById('arrivalDate');
+        const departureInput = document.getElementById('departureDate');
+        const displayTotal = document.getElementById('displayTotal');
+        const totalInput = document.getElementById('totalAmountInput');
+
+        function calculatePrice() {
+            const selectedRoom = roomSelect.options[roomSelect.selectedIndex];
+            if (!selectedRoom || !selectedRoom.value) {
+                 displayTotal.innerText = "0 VNĐ";
+                 totalInput.value = 0;
+                 return;
+            }
+
+            const basePrice = parseFloat(selectedRoom.getAttribute('data-price')) || 0;
+            const start = new Date(arrivalInput.value);
+            const end = new Date(departureInput.value);
+
+            if (basePrice > 0 && start && end && end > start) {
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                // Công thức: (Giá tháng / 30 + 25,000) * số ngày
+                const finalAmount = ((basePrice / 30) + 25000) * diffDays;
+
+                displayTotal.innerText = new Intl.NumberFormat('vi-VN').format(Math.round(finalAmount)) + " VNĐ";
+                totalInput.value = Math.round(finalAmount);
+            } else {
+                displayTotal.innerText = "0 VNĐ";
+                totalInput.value = 0;
+            }
+        }
+
+        roomSelect.addEventListener('change', calculatePrice);
+        arrivalInput.addEventListener('change', calculatePrice);
+        departureInput.addEventListener('change', calculatePrice);
+    });
+</script>

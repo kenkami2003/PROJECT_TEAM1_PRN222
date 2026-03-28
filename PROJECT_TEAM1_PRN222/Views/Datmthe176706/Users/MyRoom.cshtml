@@ -1,0 +1,145 @@
+@model BoardingHouseManagement.Models.Contract
+@using BoardingHouseManagement.Models
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Thông tin phòng thuê";
+    var room = Model.Room;
+    var building = room?.Building;
+    var assets = room?.RoomAssets?.ToList() ?? new List<RoomAsset>();
+    var utilities = room?.UtilityReadings?.OrderByDescending(u => u.Year).ThenByDescending(u => u.Month).ToList() ?? new List<UtilityReading>();
+    var serviceFees = ViewBag.ServiceFees as List<ServiceFee> ?? new List<ServiceFee>();
+
+    double electricityPrice = (double)(serviceFees.FirstOrDefault(s => s.Name.ToLower().Contains("điện"))?.Price ?? 3500);
+    double waterPrice = (double)(serviceFees.FirstOrDefault(s => s.Name.ToLower().Contains("nước"))?.Price ?? 25000);
+}
+
+<div class="container-fluid header bg-white p-0">
+    <div class="row g-0 align-items-center flex-column-reverse flex-md-row">
+        <div class="col-md-6 p-5 mt-lg-5">
+            <h1 class="display-5 animated fadeIn mb-4">Phòng Của Tôi</h1>
+            <nav aria-label="breadcrumb animated fadeIn">
+                <ol class="breadcrumb text-uppercase">
+                    <li class="breadcrumb-item"><a href="~/Datmthe176706/Users">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="~/Profile">Hồ sơ</a></li>
+                    <li class="breadcrumb-item text-body active" aria-current="page">Phòng của tôi</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-6 animated fadeIn">
+            <img class="img-fluid" src="~/user/img/header.jpg" alt="">
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Thông tin phòng -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 text-white"><i class="fa fa-info-circle me-2"></i>Thông tin chung</h5>
+                </div>
+                <div class="card-body bg-light">
+                    <h3 class="text-primary mb-3">Phòng @room?.RoomNumber</h3>
+                    <p class="mb-2"><i class="fa fa-building text-primary me-2"></i>Khu trọ: <strong>@building?.Name</strong></p>
+                    <hr />
+                    <p class="mb-2"><i class="fa fa-money-bill-wave text-primary me-2"></i>Giá thuê: <strong class="text-danger">@room?.BasePrice.ToString("N0") VNĐ/tháng</strong></p>
+                    <p class="mb-2"><i class="fa fa-file-contract text-primary me-2"></i>Hợp đồng số: @Model.ContractCode</p>
+                    <p class="mb-2"><i class="fa fa-calendar-alt text-primary me-2"></i>Ngày bắt đầu ở: @Model.StartDate.ToString("dd/MM/yyyy")</p>
+                    <p class="mb-2"><i class="fa fa-calendar-check text-primary me-2"></i>Hết hạn: @(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("dd/MM/yyyy") : "Chưa xác định")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tiền Điện Nước -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-white py-3">
+                    <h5 class="mb-0 text-white"><i class="fa fa-bolt me-2"></i>Chỉ số Điện & Nước</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Kỳ thu (Tháng/Năm)</th>
+                                    <th>Điện (Từ - Đến) = Tổng</th>
+                                    <th>Nước (Từ - Đến) = Tổng</th>
+                                    <th>Tra cứu giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (utilities.Any())
+                                {
+                                    foreach (var u in utilities)
+                                    {
+                                        double elecUsage = u.NewElectricity - u.OldElectricity;
+                                        double waterUsage = u.NewWater - u.OldWater;
+                                        <tr>
+                                            <td class="fw-bold align-middle">@u.Month / @u.Year</td>
+                                            <td class="align-middle border-start">
+                                                <small class="text-muted">@u.OldElectricity - @u.NewElectricity</small><br />
+                                                <span class="text-danger fw-bold">@elecUsage kWh</span>
+                                                <small class="d-block text-muted">~ @((elecUsage * electricityPrice).ToString("N0")) VNĐ</small>
+                                            </td>
+                                            <td class="align-middle border-start">
+                                                <small class="text-muted">@u.OldWater - @u.NewWater</small><br />
+                                                <span class="text-primary fw-bold">@waterUsage khối</span>
+                                                <small class="d-block text-muted">~ @((waterUsage * waterPrice).ToString("N0")) VNĐ</small>
+                                            </td>
+                                            <td class="align-middle border-start">
+                                                <button class="btn btn-sm btn-primary shadow-sm fw-bold" onclick="alert('Tổng hóa đơn ước tính tháng @u.Month:\n- Tiền phòng: @room?.BasePrice.ToString("N0") VNĐ\n- Tiền điện nước: @(((elecUsage * electricityPrice) + (waterUsage * waterPrice)).ToString("N0")) VNĐ\n------------------------\nTỔNG CỘNG: @(((room?.BasePrice ?? 0) + (decimal)(elecUsage * electricityPrice) + (decimal)(waterUsage * waterPrice)).ToString("N0")) VNĐ')">
+                                                    <i class="fa fa-calculator me-1"></i>Tính tổng hóa đơn
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">Chưa có chỉ số điện nước nào được ghi nhận cho phòng này.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tài sản trong phòng -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0 text-white"><i class="fa fa-couch me-2"></i>Tài sản bàn giao</h5>
+                </div>
+                <div class="card-body pb-2">
+                    <div class="row g-3">
+                        @if (assets.Any())
+                        {
+                            foreach (var asset in assets)
+                            {
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="d-flex align-items-center bg-light rounded p-3" style="border: 1px dashed rgba(0, 185, 142, .3)">
+                                        <div class="icon me-3" style="width: 45px; height: 45px;">
+                                            <i class="fa fa-box text-success"></i>
+                                        </div>
+                                        <div>
+                                            <span class="d-block fw-bold text-dark">@asset.AssetCategory?.Name</span>
+                                            <small class="text-muted">SL: @asset.Quantity | @asset.Condition</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12 py-3 text-center text-muted">
+                                Không có danh mục tài sản nào được bàn giao kèm phòng.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

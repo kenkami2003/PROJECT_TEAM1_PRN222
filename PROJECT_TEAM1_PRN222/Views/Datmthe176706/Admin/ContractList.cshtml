@@ -1,0 +1,178 @@
+﻿@model IEnumerable<BoardingHouseManagement.Models.Contract>
+@using BoardingHouseManagement.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản Lý Hợp Đồng";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="mb-3">Bộ lọc tìm kiếm hợp đồng</h5>
+        <form asp-action="ContractList" method="get">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm khách thuê/Phòng</label>
+                    <div class="input-group input-group-merge">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control" placeholder="Tên, SĐT, CMND, số phòng...">
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Tòa nhà</label>
+                    <select name="buildingId" class="form-select">
+                        <option value="">Tất cả tòa nhà</option>
+                        @foreach (var b in (List<Building>)ViewBag.Buildings)
+                        {
+                            <!option value="@b.Id" @(ViewBag.SelectedBuilding == b.Id ? "selected" : "")>@b.Name</!option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Từ ngày ký</label>
+                    <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Đến ngày ký</label>
+                    <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control">
+                </div>
+
+                <div class="col-12 text-end mt-3">
+                    <a href="@Url.Action("ContractList")" class="btn btn-label-secondary me-2">
+                        <i class="bx bx-refresh me-1"></i>Xóa bộ lọc
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-filter-alt me-1"></i>Tìm kiếm ngay
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h5 class="card-header">Danh sách hợp đồng thuê phòng</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead class="table-light">
+                <tr>
+                    <th>Thông tin phòng</th>
+                    <th>Người thuê</th>
+                    <th>Thời hạn</th>
+                    <th>Tiền cọc</th>
+                    <th>Minh chứng</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">Phòng @item.Room?.RoomNumber</span>
+                                <small class="text-muted">@item.Room?.Building?.Name</small>
+                                <small class="text-primary">Giá: @item.Room?.BasePrice.ToString("N0") đ</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">@item.Tenan?.FullName</span>
+                                <small class="text-muted">ID: @item.Tenan?.IdentityNumber</small>
+                                <small class="text-muted">SĐT: @item.Tenan?.Phone</small>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-column">
+                                <small>Bắt đầu: @item.StartDate.ToString("dd/MM/yyyy")</small>
+                                <small>Kết thúc: @(item.EndDate?.ToString("dd/MM/yyyy") ?? "Dài hạn")</small>
+                            </div>
+                        </td>
+
+                        <td class="fw-bold text-success">
+                            @item.ActualDeposit.ToString("N0") VNĐ
+                        </td>
+
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.ContractProofImage))
+                            {
+                                <a href="~/uploads/contracts/@item.ContractProofImage" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="bx bx-image-alt me-1"></i> Xem ảnh
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">Không có</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-label-success">
+                                    <i class="bx bx-check-circle me-1"></i> Đang hiệu lực
+                                </span>
+                            }
+                            else
+                            {
+                                @* Nếu IsActive = false mà phòng đã trống => Hợp đồng cũ *@
+                                if (item.Room?.Status.ToString() == "Available")
+                                {
+                                    <span class="badge bg-label-secondary">
+                                        <i class="bx bx-archive me-1"></i> Đã đóng/Hết hạn
+                                    </span>
+                                }
+                                else
+                                {
+                                    @* Nếu IsActive = false mà phòng vẫn bận/chờ => Mới là Chờ duyệt *@
+                                    <span class="badge bg-label-warning">
+                                        <i class="bx bx-time-five me-1"></i> Chờ xác minh
+                                    </span>
+                                }
+                            }
+                        </td>
+
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-action="ContractDetail" asp-route-id="@item.Id">
+                                        <i class="bx bx-show me-1"></i> Chi tiết
+                                    </a>
+
+                                    @if (!item.IsActive)
+                                    {
+                                        <a class="dropdown-item text-primary" href="javascript:void(0);"
+                                           onclick="if(confirm('Xác nhận đã nhận đủ tiền cọc và kích hoạt hợp đồng?')) { document.getElementById('activate-form-@item.Id').submit(); }">
+                                            <i class="bx bx-bolt-circle me-1"></i> Kích hoạt HĐ
+                                        </a>
+                                    }
+
+                                    <a class="dropdown-item text-danger" href="javascript:void(0);"
+                                       onclick="if(confirm('Bạn có chắc chắn muốn chấm dứt hợp đồng này?')) { document.getElementById('terminate-form-@item.Id').submit(); }">
+                                        <i class="bx bx-lock-alt me-1"></i> Kết thúc HĐ
+                                    </a>
+
+                                    @* Form ẩn xử lý *@
+                                    <form id="activate-form-@item.Id" asp-action="ActivateContract" method="post" style="display:none;">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                    </form>
+                                    <form id="terminate-form-@item.Id" asp-action="TerminateContract" method="post" style="display:none;">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

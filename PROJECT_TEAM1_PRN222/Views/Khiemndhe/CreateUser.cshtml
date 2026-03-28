@@ -1,0 +1,71 @@
+@using BoardingHouseManagement.Models
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Tạo Người dùng mới";
+    var roles = ViewBag.Roles as List<Role>;
+}
+
+<div class="row">
+    <div class="col-xl">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Tạo tài khoản mới</h5>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @ViewBag.Error
+                    </div>
+                }
+                <form action="~/Admin/User/Create" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="Username">Tên đăng nhập <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="Username" name="Username" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="Password">Mật khẩu <span class="text-danger">*</span></label>
+                        <input type="password" id="Password" name="Password" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="FullName">Họ và tên</label>
+                        <input type="text" class="form-control" id="FullName" name="FullName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="Email">Email</label>
+                        <input type="email" id="Email" name="Email" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="Phone">Số điện thoại</label>
+                        <input type="text" id="Phone" name="Phone" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="IdentityNumber">CCCD</label>
+                        <input type="text" id="IdentityNumber" name="IdentityNumber" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="RoleId">Vai trò</label>
+                        <select id="RoleId" name="RoleId" class="form-select">
+                            @if (roles != null)
+                            {
+                                foreach (var role in roles)
+                                {
+                                    <option value="@role.Id">@role.RoleName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="IsActive" name="IsActive" value="true" checked />
+                            <label class="form-check-label" for="IsActive">Kích hoạt tài khoản</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
+                    <a href="~/Admin/User" class="btn btn-outline-secondary">Trở về</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
