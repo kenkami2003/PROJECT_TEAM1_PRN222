@@ -1,4 +1,4 @@
-﻿using BoardingHouseManagement.Models;
+using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -137,6 +137,15 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
                     reservation.Room.Status = 0; // 0: Available/Trống
                 }
 
+                _context.Notifications.Add(new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = reservation.GuestId,
+                    Title = "Hủy Giữ chỗ",
+                    Message = $"Yêu cầu giữ phòng {(reservation.Room?.RoomNumber ?? "không xác định")} của bạn đã bị hủy/từ chối.",
+                    ActionLink = null
+                });
+
                 _context.Reservations.Remove(reservation);
 
                 await _context.SaveChangesAsync();
@@ -157,7 +166,9 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmReservation(Guid id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
+            var reservation = await _context.Reservations
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if (reservation == null)
             {
@@ -170,6 +181,16 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
                 reservation.Status = ReservationStatus.Confirmed;
 
                 _context.Update(reservation);
+
+                _context.Notifications.Add(new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = reservation.GuestId,
+                    Title = "Xác nhận Giữ chỗ",
+                    Message = $"Yêu cầu giữ phòng {(reservation.Room?.RoomNumber ?? "không xác định")} của bạn đã được duyệt.",
+                    ActionLink = null
+                });
+
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Đã phê duyệt đơn giữ chỗ thành công!";

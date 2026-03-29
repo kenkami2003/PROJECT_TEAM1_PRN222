@@ -167,7 +167,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
                 // --- GỬI THÔNG BÁO CHO ADMIN/STAFF ---
                 var staffAndAdmins = await _context.Users
                     .Include(u => u.Role)
-                    .Where(u => u.Role.RoleName.ToLower() == "admin" || u.Role.RoleName.ToLower() == "staff")
+                    .Where(u => u.Role.RoleName.ToLower() == "admin")
                     .ToListAsync();
 
                 var guestName = (await _context.Users.FindAsync(reservation.GuestId))?.FullName ?? "Một khách hàng";
@@ -180,7 +180,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
                         UserId = sa.Id,
                         Title = "Yêu cầu Giữ chỗ mới",
                         Message = $"{guestName} vừa gửi yêu cầu giữ chỗ cho phòng {room.RoomNumber}.",
-                        ActionLink = $"/Datmthe176706/Admin/Reservations/Details/{reservation.Id}"
+                        ActionLink = $"/Datmthe176706/Reservations/Details/{reservation.Id}"
                     });
                 }
                 // ----------------------------------------
@@ -313,7 +313,7 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             // --- GỬI THÔNG BÁO CHO ADMIN/STAFF ---
             var staffAndAdmins = await _context.Users
                 .Include(u => u.Role)
-                .Where(u => u.Role.RoleName.ToLower() == "admin" || u.Role.RoleName.ToLower() == "staff")
+                .Where(u => u.Role.RoleName.ToLower() == "admin")
                 .ToListAsync();
 
             var tenantName = (await _context.Users.FindAsync(TenantId))?.FullName ?? "Một khách hàng";

@@ -78,6 +78,15 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
                 contract.Room.Status = RoomStatus.Occupied;
             }
 
+            _context.Notifications.Add(new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = contract.TenantId,
+                Title = "Hợp đồng được kích hoạt",
+                Message = $"Hợp đồng thuê phòng {(contract.Room?.RoomNumber ?? "không xác định")} của bạn đã được duyệt và bắt đầu có hiệu lực.",
+                ActionLink = "/Datmthe176706/Users/MyRoom"
+            });
+
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Đã kích hoạt hợp đồng và cập nhật trạng thái phòng!";
 
@@ -109,6 +118,15 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
                     _context.UtilityReadings.RemoveRange(oldReadings);
                 }
             }
+
+            _context.Notifications.Add(new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = contract.TenantId,
+                Title = "Hủy Hợp đồng",
+                Message = $"Hợp đồng thuê phòng {(contract.Room?.RoomNumber ?? "không xác định")} của bạn đã kết thúc hoặc bị hủy bỏ.",
+                ActionLink = null
+            });
 
             _context.Contracts.Remove(contract);
 
