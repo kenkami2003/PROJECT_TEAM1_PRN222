@@ -1,0 +1,97 @@
+@model BoardingHouseManagement.Models.SupportTicket
+@using BoardingHouseManagement.Models
+
+@{
+    var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower() ?? "";
+    if (role == "admin") {
+        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    } else if (role == "staff") {
+        Layout = "~/Views/Shared/_LayoutStaff.cshtml";
+    } else {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    ViewData["Title"] = "Chi Tiết Yêu Cầu #" + Model.Id.ToString().Substring(0,8).ToUpper();
+}
+
+<div class="@(role == "admin" || role == "staff" ? "container-xxl flex-grow-1 container-p-y" : "container py-5")">
+    <div class="d-flex justify-content-between mb-3">
+        <h4><i class="fa fa-file-alt text-primary me-2"></i> @ViewData["Title"]</h4>
+        <a href="/Tickets/Index" class="btn btn-secondary">Quay lại</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="row">
+        <!-- Thông tin ticket -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <h5 class="fw-bold fs-4">@Model.Title</h5>
+                    <div class="d-flex mb-4 border-bottom pb-3">
+                        <div class="me-4">
+                            <small class="text-muted d-block">Trạng thái</small>
+                            <span class="fw-bold">@Model.Status</span>
+                        </div>
+                        <div class="me-4">
+                            <small class="text-muted d-block">Ngày gửi</small>
+                            <span class="fw-bold">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Khách hàng</small>
+                            <span class="fw-bold">@Model.Tenant?.FullName</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <strong class="d-block mb-2">Nội dung khách viết:</strong>
+                        <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">@Model.Description</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.AdminReply))
+                    {
+                        <div class="mb-4">
+                            <strong class="d-block mb-2 text-success"><i class="fa fa-comment-dots me-1"></i> Phản hồi từ BQL:</strong>
+                            <div class="p-3 border border-success rounded text-dark bg-white" style="white-space: pre-wrap;">@Model.AdminReply</div>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <small class="text-muted mt-1 d-block">Cập nhật lúc: @Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột thực hiện cập nhật (Dành cho Admin/Staff) -->
+        @if (role == "admin" || role == "staff")
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0">
+                    <h6 class="card-header bg-warning text-dark"><i class="fa fa-edit me-2"></i> Phản hồi yêu cầu</h6>
+                    <div class="card-body pt-3">
+                        <form asp-controller="Tickets" asp-action="Reply" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="form-label">Cập nhật trạng thái</label>
+                                <select name="status" class="form-select">
+                                    <option value="Pending" selected="@(Model.Status == TicketStatus.Pending)">Chờ xử lý</option>
+                                    <option value="InProgress" selected="@(Model.Status == TicketStatus.InProgress)">Đang xử lý</option>
+                                    <option value="Resolved" selected="@(Model.Status == TicketStatus.Resolved)">Đã giải quyết</option>
+                                    <option value="Closed" selected="@(Model.Status == TicketStatus.Closed)">Đóng</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nội dung phản hồi (Admin/Staff)</label>
+                                <textarea name="adminReply" class="form-control" rows="5" required>@Model.AdminReply</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Lưu phản hồi & Cập nhật</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

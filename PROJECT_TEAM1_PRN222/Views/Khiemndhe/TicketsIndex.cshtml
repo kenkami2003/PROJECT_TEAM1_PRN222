@@ -1,0 +1,75 @@
+@model IEnumerable<BoardingHouseManagement.Models.SupportTicket>
+@using BoardingHouseManagement.Models
+
+@{
+    var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower() ?? "";
+    if (role == "admin") {
+        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    } else if (role == "staff") {
+        Layout = "~/Views/Shared/_LayoutStaff.cshtml";
+    } else {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    ViewData["Title"] = "Danh Sách Hỗ Trợ/Khiếu Nại";
+}
+
+<div class="@(role == "admin" || role == "staff" ? "container-xxl flex-grow-1 container-p-y" : "container py-5")">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="fa fa-ticket-alt text-primary me-2"></i> @ViewData["Title"]</h4>
+        @if (role != "admin" && role != "staff")
+        {
+            <a href="/Tickets/Create" class="btn btn-primary"><i class="fa fa-plus me-1"></i> Gửi yêu cầu mới</a>
+        }
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="card">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã Ticket</th>
+                        <th>Tiêu đề</th>
+                        @if (role == "admin" || role == "staff") { <th>Khách hàng</th> }
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td>#@t.Id.ToString().Substring(0, 8).ToUpper()</td>
+                            <td class="fw-bold">@t.Title</td>
+                            @if (role == "admin" || role == "staff") { <td>@t.Tenant?.FullName</td> }
+                            <td>
+                                @switch (t.Status)
+                                {
+                                    case TicketStatus.Pending: <span class="badge bg-warning text-dark">Chờ xử lý</span>; break;
+                                    case TicketStatus.InProgress: <span class="badge bg-info text-dark">Đang xử lý</span>; break;
+                                    case TicketStatus.Resolved: <span class="badge bg-success">Đã giải quyết</span>; break;
+                                    case TicketStatus.Closed: <span class="badge bg-secondary">Đóng</span>; break;
+                                }
+                            </td>
+                            <td>@t.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <a href="/Tickets/Details/@t.Id" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">Không có yêu cầu/khiếu nại nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -164,6 +164,27 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
                 // Cập nhật trạng thái phòng sang "Đã giữ chỗ" (thường là status 2)
                 room.Status = (RoomStatus)2;
 
+                // --- GỬI THÔNG BÁO CHO ADMIN/STAFF ---
+                var staffAndAdmins = await _context.Users
+                    .Include(u => u.Role)
+                    .Where(u => u.Role.RoleName.ToLower() == "admin" || u.Role.RoleName.ToLower() == "staff")
+                    .ToListAsync();
+
+                var guestName = (await _context.Users.FindAsync(reservation.GuestId))?.FullName ?? "Một khách hàng";
+
+                foreach (var sa in staffAndAdmins)
+                {
+                    _context.Notifications.Add(new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = sa.Id,
+                        Title = "Yêu cầu Giữ chỗ mới",
+                        Message = $"{guestName} vừa gửi yêu cầu giữ chỗ cho phòng {room.RoomNumber}.",
+                        ActionLink = $"/Datmthe176706/Admin/Reservations/Details/{reservation.Id}"
+                    });
+                }
+                // ----------------------------------------
+
                 _context.Reservations.Add(reservation);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -288,6 +309,27 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 
             var room = await _context.Rooms.FindAsync(RoomId);
             if (room != null) room.Status = RoomStatus.Reserved;
+
+            // --- GỬI THÔNG BÁO CHO ADMIN/STAFF ---
+            var staffAndAdmins = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName.ToLower() == "admin" || u.Role.RoleName.ToLower() == "staff")
+                .ToListAsync();
+
+            var tenantName = (await _context.Users.FindAsync(TenantId))?.FullName ?? "Một khách hàng";
+
+            foreach (var sa in staffAndAdmins)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = sa.Id,
+                    Title = "Hợp đồng chờ duyệt",
+                    Message = $"{tenantName} vừa gửi minh chứng hợp đồng cho phòng {(room?.RoomNumber)}.",
+                    ActionLink = null
+                });
+            }
+            // ----------------------------------------
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Details", new { id = RoomId });

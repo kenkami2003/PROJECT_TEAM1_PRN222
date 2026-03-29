@@ -1,5 +1,8 @@
 @model IEnumerable<BoardingHouseManagement.Models.MaintenanceRequest>
 @using BoardingHouseManagement.Models
+@{
+    var u = ViewBag.UtilityVM as BoardingHouseManagement.Models.UtilityBatchViewModel;
+}
 
 <h3 class="mb-4">📊 Staff Dashboard</h3>
 
@@ -143,3 +146,94 @@
         }
     </tbody>
 </table>
+<h4>⚡ Nhập điện nước</h4>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <!-- FILTER -->
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <select name="propertyId" class="form-select" asp-items="ViewBag.PropertyList">
+                    <option value="">-- Chọn khu trọ --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input type="number" name="month" class="form-control" value="@u?.Month" />
+            </div>
+
+            <div class="col-md-2">
+                <input type="number" name="year" class="form-control" value="@u?.Year" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100">Lấy dữ liệu</button>
+            </div>
+        </form>
+
+        @if (u != null && u.PropertyId != Guid.Empty)
+        {
+            <form asp-action="SaveBatch" asp-controller="StaffDashboard" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PropertyId" value="@u.PropertyId" />
+                <input type="hidden" name="Month" value="@u.Month" />
+                <input type="hidden" name="Year" value="@u.Year" />
+
+                <table class="table table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Phòng</th>
+                            <th>Điện cũ</th>
+                            <th>Điện mới</th>
+                            <th>Nước cũ</th>
+                            <th>Nước mới</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (int i = 0; i < u.Rooms.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @u.Rooms[i].RoomNumber
+                                    <input type="hidden" name="Rooms[@i].RoomId" value="@u.Rooms[i].RoomId" />
+                                </td>
+
+                                <td>
+                                    <input class="form-control"
+                                           name="Rooms[@i].OldElectricity"
+                                           value="@u.Rooms[i].OldElectricity" readonly />
+                                </td>
+
+                                <td>
+                                    <input class="form-control"
+                                           name="Rooms[@i].NewElectricity"
+                                           value="@u.Rooms[i].NewElectricity" />
+                                </td>
+
+                                <td>
+                                    <input class="form-control"
+                                           name="Rooms[@i].OldWater"
+                                           value="@u.Rooms[i].OldWater" readonly />
+                                </td>
+
+                                <td>
+                                    <input class="form-control"
+                                           name="Rooms[@i].NewWater"
+                                           value="@u.Rooms[i].NewWater" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <button type="submit" class="btn btn-success">
+                    💾 Lưu điện nước
+                </button>
+            </form>
+        }
+
+    </div>
+</div>

@@ -1,0 +1,67 @@
+@model IEnumerable<BoardingHouseManagement.Models.Notification>
+@{
+    var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value?.ToLower() ?? "";
+    if (role == "admin") {
+        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    } else if (role == "staff") {
+        Layout = "~/Views/Shared/_LayoutStaff.cshtml";
+    } else {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+    ViewData["Title"] = "Hộp Thư Thông Báo";
+}
+
+<div class="@(role == "admin" || role == "staff" ? "container-xxl flex-grow-1 container-p-y" : "container py-5")">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h4 class="mb-0"><i class="fa fa-bell text-warning me-2"></i> @ViewData["Title"]</h4>
+        
+        @if (Model.Any(n => !n.IsRead))
+        {
+            <form asp-controller="Notifications" asp-action="MarkAllAsRead" method="post">
+                <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fa fa-check-double me-1"></i> Đánh dấu tất cả đã đọc</button>
+            </form>
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fa fa-bell-slash fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Bạn không có thông báo nào.</h5>
+                </div>
+            }
+            else
+            {
+                <div class="list-group shadow-sm">
+                    @foreach (var n in Model)
+                    {
+                        var readClass = n.IsRead ? "bg-light text-muted" : "bg-white border-left-primary fw-bold";
+                        <div class="list-group-item list-group-item-action p-3 @readClass">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h6 class="mb-1 @(n.IsRead ? "" : "text-dark")">@n.Title</h6>
+                                <small>@n.CreatedAt.ToString("HH:mm dd/MM/yyyy")</small>
+                            </div>
+                            <p class="mb-2 mt-1">@n.Message</p>
+                            
+                            <div class="d-flex gap-2">
+                                @if (!string.IsNullOrEmpty(n.ActionLink))
+                                {
+                                    <a href="@n.ActionLink" class="btn btn-sm btn-primary py-0 px-2" style="font-size: 13px;">Xem chi tiết</a>
+                                }
+                                
+                                @if (!n.IsRead)
+                                {
+                                    <form asp-controller="Notifications" asp-action="MarkAsRead" asp-route-id="@n.Id" method="post">
+                                        <button type="submit" class="btn btn-sm btn-light py-0 px-2 text-decoration-underline" style="font-size: 13px;">Đánh dấu đã đọc</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
