@@ -1,12 +1,9 @@
 using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace PROJECT_TEAM1_PRN222.Controllers
 {
-    [Authorize]
     public class AuditLogsController : Controller
     {
         private readonly AppDbContext _context;
@@ -14,16 +11,6 @@ namespace PROJECT_TEAM1_PRN222.Controllers
         public AuditLogsController(AppDbContext context)
         {
             _context = context;
-        }
-
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
-            if (role?.ToLower() != "staff")
-            {
-                context.Result = new RedirectToActionResult("Index", "Login", new { area = "" });
-            }
-            base.OnActionExecuting(context);
         }
 
         // ===================== INDEX =====================
