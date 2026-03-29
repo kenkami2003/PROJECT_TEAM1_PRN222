@@ -47,6 +47,10 @@
                     <p class="mb-2"><i class="fa fa-file-contract text-primary me-2"></i>Hợp đồng số: @Model.ContractCode</p>
                     <p class="mb-2"><i class="fa fa-calendar-alt text-primary me-2"></i>Ngày bắt đầu ở: @Model.StartDate.ToString("dd/MM/yyyy")</p>
                     <p class="mb-2"><i class="fa fa-calendar-check text-primary me-2"></i>Hết hạn: @(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("dd/MM/yyyy") : "Chưa xác định")</p>
+                    <hr />
+                    <a asp-action="MyInvoices" asp-controller="Users" asp-area="Datmthe176706" class="btn btn-primary w-100 shadow-lg py-2">
+                        <i class="fa fa-file-invoice-dollar me-2"></i>Xem hoá đơn &amp; Thanh toán
+                    </a>
                 </div>
             </div>
         </div>
