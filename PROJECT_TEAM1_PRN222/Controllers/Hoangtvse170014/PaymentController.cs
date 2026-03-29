@@ -3,16 +3,22 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BoardingHouseManagement.Services;
 using BoardingHouseManagement.ViewModel;
+using BoardingHouseManagement.Models;
+using Microsoft.AspNetCore.Authorization;
+using BoardingHouseManagement.Services.VnPay;
 
 namespace BoardingHouseManagement.Controllers.Hoangtvse170014
 {
+    [Authorize] // Phải đăng nhập mới được thao tác thanh toán
     public class PaymentController : Controller
     {
         private readonly IPaymentService _paymentService;
+        private readonly IVnPayService _vnPayService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, IVnPayService vnPayService)
         {
             _paymentService = paymentService;
+            _vnPayService = vnPayService;
         }
 
         // GET: /Payment/Index/{invoiceId}
@@ -25,9 +31,8 @@ namespace BoardingHouseManagement.Controllers.Hoangtvse170014
                 return NotFound("Hoá đơn không tồn tại.");
             }
 
-            if (invoice.Status == Models.InvoiceStatus.Paid)
+            if (invoice.Status == InvoiceStatus.Paid)
             {
-                // Có thể điều hướng về trang chi tiết thông báo đã thanh toán
                 ViewBag.Message = "Hoá đơn này đã được thanh toán rồi.";
             }
 
@@ -38,36 +43,61 @@ namespace BoardingHouseManagement.Controllers.Hoangtvse170014
                 TotalAmount = invoice.TotalAmount,
                 Month = invoice.Month,
                 Year = invoice.Year,
-                Username = invoice.Contract?.User?.Username ?? "N/A"
+                Username = invoice.Contract?.Tenan?.Username ?? "Khách hệ thống"
             };
 
-            // Trỏ tới đúng file view để không bị MVC mò mẫm sai vị trí
             return View("~/Views/Hoangtvse170014/Payment/Index.cshtml", vm);
         }
 
-        // POST: /Payment/Process
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Process(PaymentViewModel model)
+        public async Task<IActionResult> Process(Guid invoiceId)
         {
-            if (string.IsNullOrEmpty(model.PaymentMethod))
+            // Kiểm tra Auth nếu project có
+            string currentUsername = User.Identity?.Name ?? "";
+
+            // Tránh nhồi logic vào Controller: uỷ quyền Service làm hết
+            var payment = await _paymentService.CreatePendingVnPayPaymentAsync(invoiceId, currentUsername);
+            
+            // Service trả null khi (1) Hoá đơn không tồn tại, (2) Đã Paid, (3) Không thuộc về User này.
+            if (payment == null) 
             {
-                ModelState.AddModelError("PaymentMethod", "Vui lòng chọn phương thức thanh toán.");
-                return View("~/Views/Hoangtvse170014/Payment/Index.cshtml", model);
+                TempData["ErrorMessage"] = "Hoá đơn không hợp lệ, đã được thanh toán hoặc bạn không có quyền!";
+                return RedirectToAction("MyInvoices", "Users", new { area = "Datmthe176706" }); 
             }
 
-            var success = await _paymentService.ProcessPaymentAsync(model.InvoiceId, model.PaymentMethod);
+            // Build URL sang VNPAY sandbox
+            var paymentUrl = _vnPayService.CreatePaymentUrl(payment, HttpContext);
+            return Redirect(paymentUrl);
+        }
 
-            if (success)
+        [HttpGet]
+        [AllowAnonymous] // Cho phép VNPAY gọi về mà không cần check login
+        public async Task<IActionResult> PaymentCallback()
+        {
+            // Tránh business logic dài: uỷ quyền Service extract và verify url, hash, Db
+            var (isSuccess, invoiceId) = await _paymentService.HandleVnPayReturnAsync(Request.Query);
+
+            string vnp_ResponseCode = Request.Query["vnp_ResponseCode"];
+
+            if (isSuccess && vnp_ResponseCode == "00")
             {
-                // Thanh toán thành công, hiển thị về UI (redirect về dashboard hoặc details)
-                TempData["SuccessMessage"] = "Thanh toán thành công hoá đơn " + model.InvoiceCode;
-                // Có thể redirect về trang gốc (home hoặc invoice detail), tạm thời redirect về Index (hoặc trang success riêng tuỳ bạn)
-                return RedirectToAction("Index", new { id = model.InvoiceId });
+                TempData["SuccessMessage"] = "Thanh toán thành công qua VNPAY!";
+            }
+            else
+            {
+                if (vnp_ResponseCode == "24") // 24 = Cancelled
+                {
+                    TempData["ErrorMessage"] = "Bạn đã huỷ giao dịch thanh toán VNPAY.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Giao dịch VNPAY thất bại, mã lỗi: " + vnp_ResponseCode;
+                }
             }
 
-            ModelState.AddModelError("", "Thanh toán thất bại. Trạng thái hoá đơn có thể đã thay đổi hoặc lỗi hệ thống.");
-            return View("~/Views/Hoangtvse170014/Payment/Index.cshtml", model);
+            // Nếu lấy được hoá đơn, chuyển về chi tiết hoá đơn đó
+            return RedirectToAction("MyInvoices", "Users", new { area = "Datmthe176706" }); 
         }
     }
 }

@@ -318,5 +318,25 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 
             return View("~/Views/Datmthe176706/Users/MyRoom.cshtml", activeContract);
         }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyInvoices()
+        {
+            var tenantId = GetCurrentUserId() ?? Guid.Empty;
+
+            // Lấy tất cả hoá đơn theo hợp đồng đang active của Tenant
+            var invoices = await _context.Invoices
+                .Include(i => i.Contract)
+                    .ThenInclude(c => c.Room)
+                        .ThenInclude(r => r.Building)
+                .Include(i => i.Payments)
+                .Where(i => i.Contract.TenantId == tenantId && i.Contract.IsActive == true)
+                .OrderByDescending(i => i.Year)
+                .ThenByDescending(i => i.Month)
+                .ToListAsync();
+
+            return View("~/Views/Datmthe176706/Users/MyInvoices.cshtml", invoices);
+        }
     }
 }

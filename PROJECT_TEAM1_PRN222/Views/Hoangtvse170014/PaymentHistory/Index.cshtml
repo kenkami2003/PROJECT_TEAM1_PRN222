@@ -1,0 +1,108 @@
+@model IEnumerable<BoardingHouseManagement.Models.Payment>
+
+@{
+    ViewData["Title"] = "Lịch sử thanh toán VNPAY";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Sử dụng layout chung
+    var currentFilter = ViewData["CurrentFilter"] as BoardingHouseManagement.Models.PaymentStatus?;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary"><i class="fas fa-history"></i> Lịch sử Giao dịch VNPAY (Admin)</h2>
+
+    <!-- Bộ lọc trạng thái cơ bản -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Lọc theo trạng thái</h5>
+            <div class="btn-group" role="group">
+                <a href="/PaymentHistory/Index" class="btn btn-outline-secondary @(!currentFilter.HasValue ? "active" : "")">Tất cả</a>
+                <a href="/PaymentHistory/Index?status=Pending" class="btn btn-outline-warning @(currentFilter == BoardingHouseManagement.Models.PaymentStatus.Pending ? "active" : "")">Đang chờ</a>
+                <a href="/PaymentHistory/Index?status=Success" class="btn btn-outline-success @(currentFilter == BoardingHouseManagement.Models.PaymentStatus.Success ? "active" : "")">Thành công</a>
+                <a href="/PaymentHistory/Index?status=Failed" class="btn btn-outline-danger @(currentFilter == BoardingHouseManagement.Models.PaymentStatus.Failed ? "active" : "")">Thất bại</a>
+                <a href="/PaymentHistory/Index?status=Cancelled" class="btn btn-outline-dark @(currentFilter == BoardingHouseManagement.Models.PaymentStatus.Cancelled ? "active" : "")">Đã huỷ</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách giao dịch -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>TxnRef</th>
+                            <th>Mã Hoá Đơn</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Bank Code</th>
+                            <th>Trans No. (VNPAY)</th>
+                            <th>Tạo lúc</th>
+                            <th>Thanh toán lúc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">Không tìm thấy giao dịch nào.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><span class="font-monospace">@item.TxnRef</span></td>
+                                    <td>
+                                        @if (item.Invoice != null)
+                                        {
+                                            <a href="#" class="text-decoration-none">@item.Invoice.InvoiceCode</a>
+                                        }
+                                        else
+                                        {
+                                            @item.InvoiceId
+                                        }
+                                    </td>
+                                    <td class="text-end fw-bold text-success">
+                                        @item.Amount.ToString("N0") đ
+                                    </td>
+                                    <td>
+                                        @switch (item.Status)
+                                        {
+                                            case BoardingHouseManagement.Models.PaymentStatus.Success:
+                                                <span class="badge bg-success">Success</span>
+                                                break;
+                                            case BoardingHouseManagement.Models.PaymentStatus.Failed:
+                                                <span class="badge bg-danger">Failed</span>
+                                                break;
+                                            case BoardingHouseManagement.Models.PaymentStatus.Cancelled:
+                                                <span class="badge bg-dark">Cancelled</span>
+                                                break;
+                                            case BoardingHouseManagement.Models.PaymentStatus.Pending:
+                                            default:
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(string.IsNullOrEmpty(item.VnpResponseCode) ? "-" : item.VnpResponseCode)</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.VnpTransactionNo))
+                                        {
+                                            <span class="font-monospace text-primary">@item.VnpTransactionNo</span>
+                                        }
+                                        else
+                                        {
+                                            @:-
+                                        }
+                                    </td>
+                                    <td class="small">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="small">@(item.PaidAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
