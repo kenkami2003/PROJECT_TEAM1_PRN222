@@ -177,12 +177,7 @@
                                        asp-route-id="@item.Id">
                                         <i class="icon-base bx bx-show me-1"></i> Chi tiết
                                     </a>
-                                    @if (!item.IsConvertedToContract)
-                                    {
-                                        <a class="dropdown-item" href="@Url.Action("CreateContract", "Admin", new { reservationId = item.Id })">
-                                            <i class="icon-base bx bx-file me-1"></i> Lập hợp đồng
-                                        </a>
-                                    }
+                                 
                                     @* 1. Thẻ link hiển thị *@
                                     <a class="dropdown-item text-danger" href="javascript:void(0);"
                                        onclick="if(confirm('Xác nhận hủy đặt chỗ này?')) { document.getElementById('cancel-form-@item.Id').submit(); }">
