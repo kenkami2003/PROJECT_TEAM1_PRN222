@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PaymentVerificationViewModel>
+@model IEnumerable<PaymentVerificationViewModel>
 @using BoardingHouseManagement.Models
 @using PROJECT_TEAM1_PRN222.ViewModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
@@ -128,7 +128,7 @@
                                         }
                                         else
                                         {
-                                            <a class="dropdown-item" asp-action="ContractDetails" asp-controller="Contracts" asp-route-id="@item.Id">
+                                            <a class="dropdown-item" asp-action="ContractDetail" asp-controller="Contracts" asp-route-id="@item.Id">
                                                 <i class="bx bx-show me-1"></i> Chi tiết hợp đồng
                                             </a>
                                         }

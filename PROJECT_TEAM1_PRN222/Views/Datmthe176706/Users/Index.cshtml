@@ -66,6 +66,12 @@
                                 <div class="dropdown-menu rounded-0 m-0 shadow border-0">
                                     <a href="~/Profile" class="dropdown-item py-2"><i class="fa fa-address-card me-2 text-primary"></i>Hồ sơ cá nhân</a>
                                     <a href="~/Datmthe176706/Users/MyRoom" class="dropdown-item py-2"><i class="fa fa-home me-2 text-warning"></i>Phòng của tôi</a>
+                                    <a href="~/Notifications/Index" class="dropdown-item py-2">
+                                        <i class="fa fa-bell me-2 text-info"></i>Thông báo
+                                    </a>
+                                    <a href="~/Tickets/Index" class="dropdown-item py-2">
+                                        <i class="fa fa-ticket-alt me-2 text-secondary"></i>Hỗ trợ / Khiếu nại
+                                    </a>
                                     @if (User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
                                     {
                                         <a href="~/Admin/Portal" class="dropdown-item py-2"><i class="fa fa-cogs me-2 text-success"></i>Trang quản trị</a>

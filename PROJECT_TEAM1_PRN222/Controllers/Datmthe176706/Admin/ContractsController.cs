@@ -1,4 +1,4 @@
-﻿using BoardingHouseManagement.Models;
+using BoardingHouseManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -98,19 +98,78 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Admin
             if (contract.Room != null)
             {
                 contract.Room.Status = RoomStatus.Available; 
+
+                // Xóa các chỉ số điện nước cũ của phòng này để khách mới không bị dính
+                var oldReadings = await _context.UtilityReadings
+                    .Where(ur => ur.RoomId == contract.RoomId)
+                    .ToListAsync();
+                
+                if (oldReadings.Any())
+                {
+                    _context.UtilityReadings.RemoveRange(oldReadings);
+                }
             }
 
             _context.Contracts.Remove(contract);
 
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Đã hủy hợp đồng và giải phóng phòng thành công!";
+            TempData["SuccessMessage"] = "Đã hủy hợp đồng, giải phóng phòng và làm sạch dữ liệu điện nước cũ thành công!";
 
             return RedirectToAction(nameof(ContractList));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Create(Guid reservationId)
+        {
+            var reservation = await _context.Reservations
+                .Include(r => r.Guest)
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == reservationId);
 
+            if (reservation == null) return NotFound();
 
+            ViewBag.Reservation = reservation;
 
+            var model = new Contract
+            {
+                TenantId = reservation.GuestId,
+                RoomId = reservation.RoomId,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddMonths(12),
+                ActualDeposit = reservation.Room?.DepositAmount ?? 0
+            };
+
+            return View("~/Views/Datmthe176706/Admin/CreateContract.cshtml", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Guid reservationId, Contract contract)
+        {
+            var reservation = await _context.Reservations
+                .Include(r => r.Room)
+                .FirstOrDefaultAsync(r => r.Id == reservationId);
+
+            if (reservation == null) return NotFound();
+
+            contract.Id = Guid.NewGuid();
+            contract.ContractCode = "HD-" + DateTime.Now.ToString("yyyyMMdd") + "-" + Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+            contract.IsActive = true;
+            contract.CreatedAt = DateTime.Now;
+
+            _context.Contracts.Add(contract);
+
+            reservation.IsConvertedToContract = true;
+            if (reservation.Room != null)
+            {
+                reservation.Room.Status = RoomStatus.Occupied;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã lập hợp đồng chính thức thành công!";
+
+            return RedirectToAction(nameof(ContractList));
+        }
         public async Task<IActionResult> ContractDetail(Guid id)
         {
             var contract = await _context.Contracts
