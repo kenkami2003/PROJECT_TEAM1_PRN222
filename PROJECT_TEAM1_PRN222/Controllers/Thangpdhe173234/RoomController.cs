@@ -45,33 +45,60 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Thangpdhe173234
         // 2. Hàm này để XỬ LÝ khi bấm nút "Lưu" (Submit Form)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Room room)
+        public async Task<IActionResult> Create(Room room, IFormFile? roomImageFile)
         {
-            // 1. Kiểm tra xem số phòng này đã tồn tại trong Dãy này chưa
-            bool isExist = _context.Rooms.Any(r => r.BuildingId == room.BuildingId && r.RoomNumber == room.RoomNumber);
+            // 1. Xóa validate mặc định của RoomIma vì ta sẽ xử lý thủ công từ file
+            ModelState.Remove("RoomIma");
 
+            // 2. Kiểm tra nếu không có file ảnh thì báo lỗi ngay (nếu bạn bắt buộc phải có ảnh)
+            if (roomImageFile == null || roomImageFile.Length == 0)
+            {
+                ModelState.AddModelError("RoomIma", "Vui lòng chọn ảnh cho phòng!");
+            }
+
+            // 3. Kiểm tra trùng số phòng
+            bool isExist = _context.Rooms.Any(r => r.BuildingId == room.BuildingId && r.RoomNumber == room.RoomNumber);
             if (isExist)
             {
-                // Thêm lỗi thủ công vào ModelState để hiển thị ra View
-                ModelState.AddModelError("RoomNumber", "Số phòng này đã tồn tại trong dãy này rồi!");
+                ModelState.AddModelError("RoomNumber", "Số phòng này đã tồn tại trong dãy!");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // 4. Xử lý lưu file
+                    if (roomImageFile != null && roomImageFile.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "rooms");
+                        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(roomImageFile.FileName);
+                        string filePath = Path.Combine(uploadsFolder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await roomImageFile.CopyToAsync(stream);
+                        }
+
+                        // GÁN GIÁ TRỊ VÀO MODEL ĐỂ LƯU DB
+                        room.RoomIma = fileName;
+                    }
+
                     room.Id = Guid.NewGuid();
                     _context.Rooms.Add(room);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
+
                     return RedirectToAction("Index", "Building");
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "Có lỗi xảy ra khi lưu: " + ex.Message);
+                    ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
                 }
             }
 
-            // Nếu có lỗi (trùng số phòng hoặc validate thất bại), nạp lại dữ liệu cho View
+            // Nếu code chạy đến đây tức là có lỗi (ModelState.IsValid == false)
+            // Nạp lại dữ liệu cho View
             var building = _context.Buildings.Include(b => b.Property).FirstOrDefault(b => b.Id == room.BuildingId);
             ViewBag.BuildingName = building?.Name;
             ViewBag.PropertyName = building?.Property?.Name;

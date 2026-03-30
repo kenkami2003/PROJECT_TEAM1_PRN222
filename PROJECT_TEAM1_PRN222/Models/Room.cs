@@ -16,7 +16,7 @@ namespace BoardingHouseManagement.Models
 
         [Required, MaxLength(20)]
         public string? RoomNumber { get; set; }
-
+        public string? RoomIma { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal BasePrice { get; set; }
 

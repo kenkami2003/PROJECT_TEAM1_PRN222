@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
-    
+
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -39,7 +39,6 @@
             </div>
         </div>
         <!-- Spinner End -->
-
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
@@ -63,6 +62,12 @@
                                 <div class="dropdown-menu rounded-0 m-0 shadow border-0">
                                     <a href="~/Profile" class="dropdown-item py-2"><i class="fa fa-address-card me-2 text-primary"></i>Hồ sơ cá nhân</a>
                                     <a href="~/Datmthe176706/Users/MyRoom" class="dropdown-item py-2"><i class="fa fa-home me-2 text-warning"></i>Phòng của tôi</a>
+                                    <a href="~/Notifications/Index" class="dropdown-item py-2">
+                                        <i class="fa fa-bell me-2 text-info"></i>Thông báo
+                                    </a>
+                                    <a href="~/Tickets/Index" class="dropdown-item py-2">
+                                        <i class="fa fa-ticket-alt me-2 text-secondary"></i>Hỗ trợ / Khiếu nại
+                                    </a>
                                     @if (User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value == "Admin")
                                     {
                                         <a href="~/Admin/Portal" class="dropdown-item py-2"><i class="fa fa-cogs me-2 text-success"></i>Trang quản trị</a>
@@ -81,7 +86,6 @@
             </nav>
         </div>
         <!-- Navbar End -->
-
         @RenderBody()
 
         <!-- Footer Start -->
@@ -145,9 +149,9 @@
                 <div class="copyright">
                     <div class="row">
                         <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved. 
-							
-							<!--/*** The author’s attribution link must remain intact in the template. ***/-->
+                            &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
+
+                            <!--/*** The author’s attribution link must remain intact in the template. ***/-->
                             <!--/*** If you wish to remove this credit link, please purchase the Pro Version . ***/-->
                             Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
                         </div>
@@ -164,7 +168,6 @@
             </div>
         </div>
         <!-- Footer End -->
-
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
