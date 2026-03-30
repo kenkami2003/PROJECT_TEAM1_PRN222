@@ -136,13 +136,16 @@
                                 <form asp-controller="Payment" asp-action="Process" asp-area="" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="invoiceId" value="@invoice.Id" />
-                                    <button type="submit" class="btn btn-primary w-100 shadow-sm py-2">
+                                    <button type="submit" class="btn btn-primary w-100 shadow-sm py-2 mb-2">
                                         <img src="https://sandbox.vnpayment.vn/paymentv2/Assets/Images/logoVNPAY.png"
                                              height="20" class="me-2" alt="VNPAY"
                                              onerror="this.style.display='none'" />
                                         <i class="fa fa-credit-card me-1"></i> Thanh toán qua VNPAY
                                     </button>
                                 </form>
+                                <a asp-action="MyInvoiceDetails" asp-route-id="@invoice.Id" class="btn btn-outline-primary w-100 py-2 mt-1">
+                                    <i class="fa fa-search me-1"></i> Xem chi tiết phí
+                                </a>
                             }
                             else
                             {
@@ -153,6 +156,9 @@
                                         <small class="d-block text-muted">lúc @latestPayment.PaidAt?.ToString("HH:mm dd/MM/yyyy")</small>
                                     }
                                 </div>
+                                <a asp-action="MyInvoiceDetails" asp-route-id="@invoice.Id" class="btn btn-outline-success w-100 py-2 mt-2">
+                                    <i class="fa fa-search me-1"></i> Xem chi tiết
+                                </a>
                             }
                         </div>
                     </div>

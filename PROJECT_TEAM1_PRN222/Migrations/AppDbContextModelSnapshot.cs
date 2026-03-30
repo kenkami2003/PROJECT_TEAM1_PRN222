@@ -219,6 +219,9 @@ namespace PROJECT_TEAM1_PRN222.Migrations
                     b.Property<Guid>("ContractId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("InvoiceCode")
                         .IsRequired()
                         .HasMaxLength(50)

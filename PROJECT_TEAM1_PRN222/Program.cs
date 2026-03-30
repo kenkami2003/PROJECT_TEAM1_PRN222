@@ -27,6 +27,7 @@ builder.Services.Configure<BoardingHouseManagement.Models.VnPay.VnPayOptions>(
 
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<BoardingHouseManagement.Services.VnPay.IVnPayService, BoardingHouseManagement.Services.VnPay.VnPayService>();
+builder.Services.AddScoped<BoardingHouseManagement.Services.Admin.IAdminInvoiceService, BoardingHouseManagement.Services.Admin.AdminInvoiceService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();

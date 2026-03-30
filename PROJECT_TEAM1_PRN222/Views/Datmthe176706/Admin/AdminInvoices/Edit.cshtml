@@ -1,0 +1,135 @@
+@model BoardingHouseManagement.ViewModels.Admin.AdminInvoiceEditVM
+@using BoardingHouseManagement.Models
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hóa đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Hóa đơn /</span> Chỉnh sửa hóa đơn
+    </h4>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Cập nhật thông tin: <span class="text-primary">@Model.InvoiceCode</span></h5>
+                    <small class="text-muted float-end">Khách thuê: @Model.TenantName - Phòng @Model.RoomNumber</small>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" id="editInvoiceForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="InvoiceCode" />
+                        <input type="hidden" asp-for="TenantName" />
+                        <input type="hidden" asp-for="RoomNumber" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="Month">Tháng</label>
+                                <select asp-for="Month" class="form-select">
+                                    @for (int i = 1; i <= 12; i++)
+                                    {
+                                        <option value="@i">Tháng @i</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="Year">Năm</label>
+                                <input asp-for="Year" type="number" class="form-control" />
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="RoomAmount">Tiền phòng (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-home"></i></span>
+                                    <input asp-for="RoomAmount" type="number" class="form-control amount-input" />
+                                </div>
+                                <span asp-validation-for="RoomAmount" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="UtilityAmount">Tiền điện/nước (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-droplet"></i></span>
+                                    <input asp-for="UtilityAmount" type="number" class="form-control amount-input" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="ServiceAmount">Tiền dịch vụ (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-wrench"></i></span>
+                                    <input asp-for="ServiceAmount" type="number" class="form-control amount-input" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="PenaltyAmount">Tiền phạt/khác (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-error-circle"></i></span>
+                                    <input asp-for="PenaltyAmount" type="number" class="form-control amount-input" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="DueDate">Hạn thanh toán</label>
+                                <input asp-for="DueDate" type="date" class="form-control" value="@Model.DueDate.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="DueDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="Status">Trạng thái</label>
+                                <select asp-for="Status" class="form-select">
+                                    @foreach (var status in Enum.GetValues(typeof(InvoiceStatus)))
+                                    {
+                                        <option value="@status">@status</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                            <i class="bx bx-calculator me-2"></i>
+                            <div>
+                                <strong>Tổng cộng mới: </strong>
+                                <span id="totalPreview" class="fw-bold fs-5 text-primary">0</span> VNĐ
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+                            <button type="submit" class="btn btn-warning">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            function calculateTotal() {
+                let total = 0;
+                $('.amount-input').each(function () {
+                    let val = parseFloat($(this).val()) || 0;
+                    total += val;
+                });
+                $('#totalPreview').text(total.toLocaleString('vi-VN'));
+            }
+
+            $('.amount-input').on('input', calculateTotal);
+            calculateTotal(); // Chạy lần đầu
+        });
+    </script>
+}

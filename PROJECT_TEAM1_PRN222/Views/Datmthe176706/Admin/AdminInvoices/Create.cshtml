@@ -1,0 +1,182 @@
+@model BoardingHouseManagement.ViewModels.Admin.AdminInvoiceCreateVM
+@using BoardingHouseManagement.Models
+
+@{
+    ViewData["Title"] = "Tạo hóa đơn mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light">Hóa đơn /</span> Tạo hóa đơn mới
+    </h4>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Thông tin hóa đơn</h5>
+                    <small class="text-muted float-end">Bước 1: Chọn khách thuê & nhập phí</small>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" id="invoiceForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div id="suggestionWarning" class="alert alert-warning d-none mb-3" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="ContractId">Hợp đồng khách thuê</label>
+                            <select asp-for="ContractId" class="form-select" asp-items="Model.Contracts">
+                                <option value="">-- Chọn khách thuê - Phòng --</option>
+                            </select>
+                            <span asp-validation-for="ContractId" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="Month">Tháng</label>
+                                <select asp-for="Month" class="form-select">
+                                    @for (int i = 1; i <= 12; i++)
+                                    {
+                                        <option value="@i">Tháng @i</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="Year">Năm</label>
+                                <input asp-for="Year" type="number" class="form-select" />
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="RoomAmount">Tiền phòng (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-home"></i></span>
+                                    <input asp-for="RoomAmount" type="number" class="form-control amount-input" placeholder="0" />
+                                </div>
+                                <span asp-validation-for="RoomAmount" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="UtilityAmount">Tiền điện/nước (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-droplet"></i></span>
+                                    <input asp-for="UtilityAmount" type="number" class="form-control amount-input" placeholder="0" />
+                                </div>
+                                <small id="utilityBreakdown" class="text-info d-block mt-1"></small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="ServiceAmount">Tiền dịch vụ (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-wrench"></i></span>
+                                    <input asp-for="ServiceAmount" type="number" class="form-control amount-input" placeholder="0" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="PenaltyAmount">Tiền phạt/khác (VNĐ)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bx bx-error-circle"></i></span>
+                                    <input asp-for="PenaltyAmount" type="number" class="form-control amount-input" placeholder="0" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="DueDate">Hạn thanh toán</label>
+                            <input asp-for="DueDate" type="date" class="form-control" />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                            <i class="bx bx-calculator me-2"></i>
+                            <div>
+                                <strong>Tổng cộng dự kiến: </strong>
+                                <span id="totalPreview" class="fw-bold fs-5 text-primary">0</span> VNĐ
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+                            <button type="submit" class="btn btn-primary">Xác nhận tạo hóa đơn</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            function calculateTotal() {
+                let total = 0;
+                $('.amount-input').each(function () {
+                    let val = parseFloat($(this).val()) || 0;
+                    total += val;
+                });
+                $('#totalPreview').text(total.toLocaleString('vi-VN'));
+            }
+
+            $('.amount-input').on('input', function() {
+                calculateTotal();
+                // Nếu chỉnh tay Tiền Điện/Nước, cảnh báo là đã sửa thủ công
+                if ($(this).attr('id') === 'UtilityAmount') {
+                    $('#utilityBreakdown').text('(Đã chỉnh sửa thủ công, không còn khớp gợi ý)').addClass('text-warning').removeClass('text-info');
+                }
+            });
+            calculateTotal(); // Chạy lần đầu
+
+            // Lắng nghe thay đổi Hợp đồng, Tháng, Năm để gọi gợi ý
+            function fetchSuggestion() {
+                var contractId = $('#ContractId').val();
+                var month = $('#Month').val();
+                var year = $('#Year').val();
+
+                if (!contractId || !month || !year) return;
+
+                $.ajax({
+                    url: '/Admin/AdminInvoices/GetInvoiceSuggestion',
+                    type: 'GET',
+                    data: { contractId: contractId, month: month, year: year },
+                    success: function (res) {
+                        $('#suggestionWarning').addClass('d-none').text('').removeClass('alert-danger').addClass('alert-warning');
+                        $('#utilityBreakdown').text('');
+                        
+                        // 1. Tự điền các ô
+                        if (res.roomAmount !== undefined) $('#RoomAmount').val(res.roomAmount);
+                        if (res.utilityAmount !== undefined) $('#UtilityAmount').val(res.utilityAmount);
+                        if (res.serviceAmount !== undefined) $('#ServiceAmount').val(res.serviceAmount);
+                        
+                        // 2. Hiển thị thông số điện nước nếu API trả về
+                        if (res.electricityAmount !== undefined && res.waterAmount !== undefined) {
+                            $('#utilityBreakdown').text(`(Chi tiết: Điện ${res.electricityAmount.toLocaleString('vi-VN')} VNĐ - Nước ${res.waterAmount.toLocaleString('vi-VN')} VNĐ)`);
+                        }
+
+                        // 3. Hiển thị Warning Message
+                        if (res.warningMessage) {
+                            $('#suggestionWarning').removeClass('d-none').text(res.warningMessage);
+                            // Highlight khẩn cấp nếu là duplicate
+                            if (res.isDuplicateInvoice) {
+                                $('#suggestionWarning').removeClass('alert-warning').addClass('alert-danger');
+                            }
+                        }
+
+                        // 4. Tính lại tổng
+                        calculateTotal();
+                    },
+                    error: function (err) {
+                        console.error('Lỗi tải suggestion:', err);
+                    }
+                });
+            }
+
+            $('#ContractId, #Month, #Year').on('change', fetchSuggestion);
+        });
+    </script>
+}

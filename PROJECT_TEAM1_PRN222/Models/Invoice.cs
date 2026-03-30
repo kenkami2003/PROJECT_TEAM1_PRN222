@@ -36,6 +36,7 @@ namespace BoardingHouseManagement.Models
         public decimal TotalAmount { get; set; }
 
         public InvoiceStatus Status { get; set; }
+        public DateTime DueDate { get; set; }
 
         public Contract Contract { get; set; }
         public ICollection<Payment> Payments { get; set; }

@@ -338,5 +338,28 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
 
             return View("~/Views/Datmthe176706/Users/MyInvoices.cshtml", invoices);
         }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyInvoiceDetails(Guid id)
+        {
+            var tenantId = GetCurrentUserId() ?? Guid.Empty;
+
+            var invoice = await _context.Invoices
+                .Include(i => i.Contract)
+                    .ThenInclude(c => c.Room)
+                        .ThenInclude(r => r.Building)
+                            .ThenInclude(b => b.Property)
+                .Include(i => i.Payments)
+                .FirstOrDefaultAsync(i => i.Id == id && i.Contract.TenantId == tenantId);
+
+            if (invoice == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hóa đơn hoặc bạn không có quyền truy cập.";
+                return RedirectToAction(nameof(MyInvoices));
+            }
+
+            return View("~/Views/Datmthe176706/Users/MyInvoiceDetails.cshtml", invoice);
+        }
     }
 }
