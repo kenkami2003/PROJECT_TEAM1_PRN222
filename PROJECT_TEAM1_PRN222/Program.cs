@@ -22,7 +22,12 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
     });
 
 // Add services to the container.
+builder.Services.Configure<BoardingHouseManagement.Models.VnPay.VnPayOptions>(
+    builder.Configuration.GetSection(BoardingHouseManagement.Models.VnPay.VnPayOptions.ConfigName));
+
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<BoardingHouseManagement.Services.VnPay.IVnPayService, BoardingHouseManagement.Services.VnPay.VnPayService>();
+builder.Services.AddScoped<BoardingHouseManagement.Services.Admin.IAdminInvoiceService, BoardingHouseManagement.Services.Admin.AdminInvoiceService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
@@ -46,12 +51,12 @@ app.MapControllerRoute(
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
     name: "admim",
     pattern: "Admin/{controller=Portal}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllers();
 

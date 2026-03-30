@@ -66,18 +66,27 @@
                 <div class="menu-inner-shadow"></div>
 
           <ul class="menu-inner py-1">
-            <li class="menu-item">
-              <a href="~/Admin/Portal" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="Analytics">Dashboard</div>
-              </a>
-            </li>
+           
 
             <!-- Quản lý người dùng -->
             <li class="menu-item">
                 <a href="~/Admin/User" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-user"></i>
                     <div data-i18n="User Management">Quản lý người dùng</div>
+                </a>
+            </li>
+
+            <!-- Hệ thống thông báo & Hỗ trợ -->
+            <li class="menu-item">
+                <a href="~/Notifications/Index" class="menu-link text-primary">
+                    <i class="menu-icon tf-icons bx bx-bell"></i>
+                    <div data-i18n="Notifications">Thông báo</div>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="~/Tickets/Index" class="menu-link text-warning">
+                    <i class="menu-icon tf-icons bx bx-support"></i>
+                    <div data-i18n="Support">Hỗ trợ / Khiếu nại</div>
                 </a>
             </li>
 
@@ -190,6 +199,13 @@
 
 
                         </ul>
+                    </li>
+
+                    <li class="menu-item">
+                        <a href="~/Admin/AdminInvoices" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-file"></i>
+                            <div data-i18n="Invoices">Quản lý hóa đơn</div>
+                        </a>
                     </li>
                 </ul>
             </aside>

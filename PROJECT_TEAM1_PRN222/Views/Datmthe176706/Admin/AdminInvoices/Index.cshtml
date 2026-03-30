@@ -1,0 +1,139 @@
+@model BoardingHouseManagement.ViewModels.Admin.AdminInvoiceListVM
+@using BoardingHouseManagement.Models
+
+@{
+    ViewData["Title"] = "Quản lý hóa đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold py-3 mb-0">
+            <span class="text-muted fw-light">Hóa đơn /</span> Danh sách hóa đơn
+        </h4>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bx bx-plus me-1"></i> Tạo hóa đơn mới
+        </a>
+    </div>
+
+    <!-- Bộ lọc -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row aria-label='Bộ lọc hóa đơn'">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Tháng</label>
+                    <select name="month" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i" selected="@(Model.SelectedMonth == i ? "selected" : null)">Tháng @i</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Năm</label>
+                    <select name="year" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        @for (int i = DateTime.Now.Year - 2; i <= DateTime.Now.Year + 1; i++)
+                        {
+                            <option value="@i" selected="@(Model.SelectedYear == i ? "selected" : null)">Năm @i</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="status" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        @foreach (var status in Enum.GetValues(typeof(InvoiceStatus)))
+                        {
+                            <option value="@status" selected="@(Model.SelectedStatus == (InvoiceStatus)status ? "selected" : null)">@status</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">
+                        <i class="bx bx-filter-alt me-1"></i> Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bx bx-refresh me-1"></i> Xóa lọc
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Danh sách hóa đơn -->
+    <div class="card">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Mã hóa đơn</th>
+                        <th>Khách thuê</th>
+                        <th>Phòng</th>
+                        <th>Kỳ hóa đơn</th>
+                        <th>Hạn thanh toán</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    @if (!Model.Invoices.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bx bx-info-circle fs-4 mb-2 d-block"></i>
+                                Không tìm thấy hóa đơn nào phù hợp.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.Invoices)
+                        {
+                            <tr>
+                                <td><strong>@item.InvoiceCode</strong></td>
+                                <td>@(item.Contract?.Tenan?.FullName ?? "N/A")</td>
+                                <td>@(item.Contract?.Room?.RoomNumber ?? "N/A")</td>
+                                <td>Tháng @item.Month/@item.Year</td>
+                                <td>@item.DueDate.ToString("dd/MM/yyyy")</td>
+                                <td class="text-primary fw-bold">@item.TotalAmount.ToString("N0") VNĐ</td>
+                                <td>
+                                    @{
+                                        var badgeClass = item.Status switch
+                                        {
+                                            InvoiceStatus.Paid => "bg-label-success",
+                                            InvoiceStatus.Pending => "bg-label-warning",
+                                            InvoiceStatus.Overdue => "bg-label-danger",
+                                            _ => "bg-label-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass">@item.Status</span>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">
+                                                <i class="bx bx-show-alt me-1"></i> Chi tiết
+                                            </a>
+                                            @if (item.Status != InvoiceStatus.Paid)
+                                            {
+                                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">
+                                                    <i class="bx bx-edit-alt me-1"></i> Chỉnh sửa
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

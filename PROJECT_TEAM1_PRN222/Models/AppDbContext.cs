@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.EntityFrameworkCore;
 
 namespace BoardingHouseManagement.Models
@@ -26,6 +26,8 @@ namespace BoardingHouseManagement.Models
         public DbSet<MaintenanceRequest> MaintenanceRequests { get; set; }
         public DbSet<CompensationLog> CompensationLogs { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SupportTicket> SupportTickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

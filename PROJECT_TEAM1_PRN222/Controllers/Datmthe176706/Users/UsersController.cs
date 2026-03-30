@@ -164,6 +164,27 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
                 // Cập nhật trạng thái phòng sang "Đã giữ chỗ" (thường là status 2)
                 room.Status = (RoomStatus)2;
 
+                // --- GỬI THÔNG BÁO CHO ADMIN/STAFF ---
+                var staffAndAdmins = await _context.Users
+                    .Include(u => u.Role)
+                    .Where(u => u.Role.RoleName.ToLower() == "admin")
+                    .ToListAsync();
+
+                var guestName = (await _context.Users.FindAsync(reservation.GuestId))?.FullName ?? "Một khách hàng";
+
+                foreach (var sa in staffAndAdmins)
+                {
+                    _context.Notifications.Add(new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = sa.Id,
+                        Title = "Yêu cầu Giữ chỗ mới",
+                        Message = $"{guestName} vừa gửi yêu cầu giữ chỗ cho phòng {room.RoomNumber}.",
+                        ActionLink = $"/Datmthe176706/Reservations/Details/{reservation.Id}"
+                    });
+                }
+                // ----------------------------------------
+
                 _context.Reservations.Add(reservation);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -289,6 +310,27 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             var room = await _context.Rooms.FindAsync(RoomId);
             if (room != null) room.Status = RoomStatus.Reserved;
 
+            // --- GỬI THÔNG BÁO CHO ADMIN/STAFF ---
+            var staffAndAdmins = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName.ToLower() == "admin")
+                .ToListAsync();
+
+            var tenantName = (await _context.Users.FindAsync(TenantId))?.FullName ?? "Một khách hàng";
+
+            foreach (var sa in staffAndAdmins)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = sa.Id,
+                    Title = "Hợp đồng chờ duyệt",
+                    Message = $"{tenantName} vừa gửi minh chứng hợp đồng cho phòng {(room?.RoomNumber)}.",
+                    ActionLink = null
+                });
+            }
+            // ----------------------------------------
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Details", new { id = RoomId });
         }
@@ -317,6 +359,49 @@ namespace PROJECT_TEAM1_PRN222.Controllers.Datmthe176706.Users
             ViewBag.ServiceFees = await _context.ServiceFees.ToListAsync();
 
             return View("~/Views/Datmthe176706/Users/MyRoom.cshtml", activeContract);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyInvoices()
+        {
+            var tenantId = GetCurrentUserId() ?? Guid.Empty;
+
+            // Lấy tất cả hoá đơn theo hợp đồng đang active của Tenant
+            var invoices = await _context.Invoices
+                .Include(i => i.Contract)
+                    .ThenInclude(c => c.Room)
+                        .ThenInclude(r => r.Building)
+                .Include(i => i.Payments)
+                .Where(i => i.Contract.TenantId == tenantId && i.Contract.IsActive == true)
+                .OrderByDescending(i => i.Year)
+                .ThenByDescending(i => i.Month)
+                .ToListAsync();
+
+            return View("~/Views/Datmthe176706/Users/MyInvoices.cshtml", invoices);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyInvoiceDetails(Guid id)
+        {
+            var tenantId = GetCurrentUserId() ?? Guid.Empty;
+
+            var invoice = await _context.Invoices
+                .Include(i => i.Contract)
+                    .ThenInclude(c => c.Room)
+                        .ThenInclude(r => r.Building)
+                            .ThenInclude(b => b.Property)
+                .Include(i => i.Payments)
+                .FirstOrDefaultAsync(i => i.Id == id && i.Contract.TenantId == tenantId);
+
+            if (invoice == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hóa đơn hoặc bạn không có quyền truy cập.";
+                return RedirectToAction(nameof(MyInvoices));
+            }
+
+            return View("~/Views/Datmthe176706/Users/MyInvoiceDetails.cshtml", invoice);
         }
     }
 }

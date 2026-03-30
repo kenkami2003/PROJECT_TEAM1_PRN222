@@ -9,6 +9,7 @@ namespace BoardingHouseManagement.Models
         [Key]
         public Guid Id { get; set; }
 
+
         public Guid RoomId { get; set; }
 
         public Guid TenantId { get; set; }
